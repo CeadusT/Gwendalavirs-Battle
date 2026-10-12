@@ -76,7 +76,7 @@ Polices : Cinzel (noms, coût, statistiques), Alegreya (texte), Alegreya Sans SC
 - **Ordre de la bibliothèque** : il n'est plus mélangé au rechargement de la page.
 - **Exports PDF / TTS** : ils suivent l'ordre du deck affiché à l'écran.
 - **Import Excel** : il accepte les variantes de saisie (« Commune », apostrophe typographique ’…). Les exemples du modèle fourni sont désormais acceptés.
-- **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Vent, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
+- **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Plante, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
 - **Limites d'exemplaires** : les Types créés à la main ont maintenant leur propre ligne.
 - **Card Studio** : une carte enregistrée sans texte n'hérite plus du texte d'exemple. L'aperçu n'affiche plus de curseur « main ».
 - **Recherche** : elle est plus rapide (le texte de chaque carte est indexé une seule fois).

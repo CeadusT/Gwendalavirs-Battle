@@ -22,7 +22,7 @@ const DEFAULT_LIMIT = 3;
 const COLORS = {
   Rouge: { element: 'Feu', hex: '#b5452f', icon: 'M12 3c.5 3.5-3.5 5-3.5 9a3.5 3.5 0 0 0 7 0c0-1.6-.8-2.8-1.5-3.6 2.2.7 4 2.9 4 5.6a6 6 0 0 1-12 0c0-5.2 5.4-6.8 6-11Z' },
   Bleu: { element: 'Eau', hex: '#2f6f9f', icon: 'M12 3s-6 6.8-6 11a6 6 0 0 0 12 0c0-4.2-6-11-6-11Z' },
-  Vert: { element: 'Vent', hex: '#4f8a5b', icon: 'M3 9h11a3 3 0 1 0-3-3M3 13h15a3 3 0 1 1-3 3M3 17h7' },
+  Vert: { element: 'Plante', hex: '#4f8a5b', icon: 'M20 4C11 4 6 8 5 17c7 1 12-3 15-13ZM5 19c3-5 7-8 12-11' },
   Violet: { element: 'Ombre', hex: '#6a4c93', icon: 'M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10Z' },
   Marron: { element: 'Terre', hex: '#8a6240', icon: 'M3 19 9 9l4 6 2-3 6 7H3Z' },
   Jaune: { element: 'Foudre', hex: '#c9a227', icon: 'M13 2 5 14h6l-1 8 8-12h-6l1-8Z' },
