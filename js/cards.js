@@ -1,0 +1,236 @@
+'use strict';
+/* ==========================================================================
+   Cartes : normalisation, limites d'exemplaires, Types / Sous-types,
+   état de la bibliothèque et rendu HTML d'une carte.
+   ========================================================================== */
+
+migrateLegacyKeys();
+
+/* ---------- État des cartes ---------- */
+
+let customCards = [];                 // cartes créées (stockées dans IndexedDB)
+let editedBase = {};                  // modifications des cartes de base, par id
+let trashCards = [];                  // copies des cartes mises à la corbeille
+let permanentlyDeletedBase = new Set(readJson(STORAGE_KEYS.permanentlyDeletedBase, []));
+let cards = [];                       // bibliothèque visible (base + créées − corbeille)
+let cardsById = new Map();
+let searchIndex = new Map();          // id → texte de recherche en minuscules
+let libraryOrder = readJson(STORAGE_KEYS.libraryOrder, []).map(String);
+let bookmarks = new Set(readJson(STORAGE_KEYS.bookmarks, []));
+let freshlySaved = new Set(readJson(STORAGE_KEYS.freshlySaved, []));
+
+const cleanStringSet = key => new Set(readJson(key, []).map(v => String(v).trim()).filter(Boolean));
+let customTypes = cleanStringSet(STORAGE_KEYS.customTypes);
+let customSubtypes = cleanStringSet(STORAGE_KEYS.customSubtypes);
+let deletedTypes = cleanStringSet(STORAGE_KEYS.deletedTypes);
+
+const saveBookmarks = () => writeJson(STORAGE_KEYS.bookmarks, [...bookmarks]);
+const saveFreshlySaved = () => writeJson(STORAGE_KEYS.freshlySaved, [...freshlySaved]);
+const saveLibraryOrder = () => writeJson(STORAGE_KEYS.libraryOrder, libraryOrder);
+
+function saveTaxonomies() {
+  writeJson(STORAGE_KEYS.customTypes, [...customTypes]);
+  writeJson(STORAGE_KEYS.customSubtypes, [...customSubtypes]);
+  writeJson(STORAGE_KEYS.deletedTypes, [...deletedTypes]);
+}
+
+/* ---------- Normalisation ---------- */
+
+function normalizeFontStyle(raw, defaults) {
+  return {
+    fontSize: clamp(Number(raw?.fontSize) || defaults.fontSize, 6, 40),
+    bold: raw?.bold ?? defaults.bold,
+    italic: raw?.italic ?? defaults.italic,
+    underline: raw?.underline ?? defaults.underline,
+  };
+}
+
+/* Toute carte (base, créée, importée en JSON ou Excel) passe par ici :
+   les valeurs inattendues sont corrigées pour ne jamais casser l'affichage. */
+function normalizeCard(c) {
+  let type = String(c.type || c.tribal || 'Carte').trim() || 'Carte';
+  if (type === 'Tribal jeton') type = 'Jeton';
+  const isCharacter = type.includes('Personnage');
+  const isHero = type === HERO_TYPE;
+  const image = typeof c.image === 'string' && c.image.trim() ? c.image.trim() : undefined;
+  return {
+    ...c,
+    id: String(c.id ?? ''),
+    name: String(c.name ?? ''),
+    text: String(c.text ?? ''),
+    type,
+    subtype: String(c.subtype || '').trim(),
+    color: COLORS[c.color] ? c.color : FALLBACK_COLOR,
+    rarity: RARITIES.includes(c.rarity) ? c.rarity : RARITIES[0],
+    set: SETS.includes(c.set) ? c.set : SETS[0],
+    spire: clamp(Math.round(Number(c.spire) || 0), MIN_SPIRE, MAX_SPIRE),
+    showSpire: c.showSpire === undefined ? !AUTO_HIDE_SPIRE_TYPES.has(type) : c.showSpire !== false,
+    attack: Math.max(0, Number(c.attack) || 0),
+    health: Math.max(0, Number(c.health) || 0),
+    showAttack: c.showAttack === undefined ? isCharacter : c.showAttack !== false,
+    showHealth: c.showHealth === undefined ? isCharacter || isHero : c.showHealth !== false,
+    deckLimitOverride: Number(c.deckLimitOverride) > 0 ? Number(c.deckLimitOverride) : null,
+    image,
+    textStyle: normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE),
+    typeStyle: normalizeFontStyle(c.typeStyle || c.tribalStyle, DEFAULT_TYPE_STYLE),
+    subtypeStyle: normalizeFontStyle(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE),
+  };
+}
+
+const isBaseId = id => String(id).startsWith('base-');
+const isHeroCard = c => c?.type === HERO_TYPE;
+
+/* ---------- Bibliothèque ---------- */
+
+function trashedIds() {
+  return new Set(trashCards.map(c => c.id));
+}
+
+/* Recalcule la bibliothèque après tout changement de cartes. */
+function refreshCards() {
+  const hidden = trashedIds();
+  const base = BASE_CARDS
+    .filter(c => !permanentlyDeletedBase.has(c.id))
+    .map(c => (editedBase[c.id] ? { ...c, ...editedBase[c.id], id: c.id } : c));
+  cards = [...base, ...customCards].map(normalizeCard).filter(c => !hidden.has(c.id));
+  cardsById = new Map(cards.map(c => [c.id, c]));
+  searchIndex = new Map(cards.map(c => [c.id, `${c.name} ${plainText(c.text)} ${c.type} ${c.subtype}`.toLowerCase()]));
+  ensureLibraryOrder();
+  syncTaxonomyControls();
+}
+
+function ensureLibraryOrder() {
+  const valid = new Set(cards.map(c => c.id));
+  libraryOrder = [...new Set(libraryOrder)].filter(id => valid.has(id));
+  const known = new Set(libraryOrder);
+  for (const c of cards) if (!known.has(c.id)) libraryOrder.push(c.id);
+}
+
+/* ---------- Limites d'exemplaires ---------- */
+
+const defaultRules = { rarity: Object.fromEntries(RARITIES.map(r => [r, DEFAULT_LIMIT])), type: Object.fromEntries(TYPES.map(t => [t, DEFAULT_LIMIT])) };
+
+function clampRule(value) {
+  return clamp(Number(value) || DEFAULT_LIMIT, 1, 99);
+}
+
+function normalizeRules(raw) {
+  const rules = structuredClone(defaultRules);
+  for (const r of RARITIES) rules.rarity[r] = clampRule(raw?.rarity?.[r]);
+  for (const [t, v] of Object.entries(raw?.type || {})) rules.type[t] = clampRule(v);
+  return rules;
+}
+
+let limitRules = normalizeRules(readJson(STORAGE_KEYS.limitRules, defaultRules));
+const saveRules = () => writeJson(STORAGE_KEYS.limitRules, limitRules);
+
+/* Limite d'une carte : sa limite spéciale, sinon la plus stricte entre rareté et Type. */
+function limitOf(c) {
+  if (Number(c.deckLimitOverride) > 0) return Number(c.deckLimitOverride);
+  return Math.min(clampRule(limitRules.rarity[c.rarity]), clampRule(limitRules.type[c.type]));
+}
+
+/* ---------- Types et Sous-types ---------- */
+
+function typeExists(value) {
+  return (TYPES.includes(value) || customTypes.has(value)) && !deletedTypes.has(value);
+}
+
+function taxonomyValues(kind) {
+  const values = kind === 'type'
+    ? [...TYPES, ...customTypes, ...cards.map(c => c.type)].filter(v => v && !deletedTypes.has(v))
+    : [...customSubtypes, ...cards.map(c => c.subtype)].filter(Boolean);
+  return [...new Set(values)].sort((a, b) => a.localeCompare(b, 'fr'));
+}
+
+function taxonomyMenuMarkup(kind, query = '') {
+  const current = $(kind === 'type' ? '#studioType' : '#studioSubtype')?.value || '';
+  const q = query.trim().toLocaleLowerCase('fr');
+  const values = taxonomyValues(kind).filter(v => !q || v.toLocaleLowerCase('fr').includes(q));
+  if (!values.length) return '<div class="taxonomyEmpty">Aucun résultat — clique sur Créer pour ajouter cette valeur.</div>';
+  return values.map(v => `<button type="button" class="taxonomyOption${v === current ? ' active' : ''}" data-value="${escapeHtml(v)}">${escapeHtml(v)}</button>`).join('');
+}
+
+/* Met à jour les filtres Type / Sous-type de la bibliothèque. */
+function syncTaxonomyControls() {
+  const fill = (select, values) => {
+    const previous = select.value || 'Tous';
+    select.innerHTML = ['Tous', ...values].map(v => `<option>${escapeHtml(v)}</option>`).join('');
+    select.value = values.includes(previous) ? previous : 'Tous';
+  };
+  fill($('#type'), taxonomyValues('type'));
+  fill($('#subtypeFilter'), taxonomyValues('subtype'));
+}
+
+/* ---------- Rendu d'une carte ---------- */
+
+const ICONS = {
+  star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.03l-5.5 2.89 1.05-6.12L3.1 9.47l6.15-.9L12 3Z"/></svg>',
+  pencil: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4.2-1 10.6-10.6-3.2-3.2L5 15.8 4 20Z"/><path d="m13.9 6.9 3.2 3.2"/></svg>',
+};
+
+/* Tailles exprimées en fraction de la largeur de carte (--size), base 360 px. */
+function scaledFontSize(px) {
+  return `max(4px,calc(var(--size)*${(Number(px) / 360).toFixed(5)}))`;
+}
+
+function styleCss(raw, defaults) {
+  const st = normalizeFontStyle(raw, defaults);
+  return `font-size:${scaledFontSize(st.fontSize)};font-weight:${st.bold ? 800 : 400};font-style:${st.italic ? 'italic' : 'normal'};text-decoration:${st.underline ? 'underline' : 'none'};`;
+}
+
+function scaledCardText(html) {
+  return sanitizeRichText(html).replace(/\n/g, '<br>').replace(/font-size:\s*(\d+(?:\.\d+)?)px/gi, (_, size) => `font-size:${scaledFontSize(size)}`);
+}
+
+function colorClass(c) {
+  return (COLORS[c.color] ? c.color : FALLBACK_COLOR).toLowerCase();
+}
+
+function elementName(c) {
+  return (COLORS[c.color]?.element || String(c.color)).toUpperCase();
+}
+
+function backgroundImageStyle(image, overlay = '') {
+  return image ? ` style="${escapeHtml(`background-image:${overlay}${cssUrl(image)}`)}"` : '';
+}
+
+/* Nombre d'exemplaires dans le deck en cours (défini dans deck.js). */
+function deckCopies(c) {
+  return isHeroCard(c) ? (hero?.id === c.id ? 1 : 0) : qtyOf(c.id);
+}
+
+/* HTML intérieur d'une carte.
+   quick  : boutons de survol (bibliothèque) · studio : zones éditables (Card Studio) */
+function cardMarkup(c, { quick = false, studio = false } = {}) {
+  const zone = name => (studio ? ` data-zone="${name}"` : '');
+  const editable = name => (studio ? ` data-zone="${name}" data-inline-edit="${name}" contenteditable="true" spellcheck="true"` : '');
+  const isHero = isHeroCard(c);
+  const showCost = (studio || displaySpires) && c.showSpire !== false;
+
+  const actions = quick ? `<div class="cardActionGrid">`
+    + `<div class="cardActionRow"><button class="cardAction top editCard" title="Modifier dans le Card Studio">${ICONS.pencil}</button>`
+    + `<button class="cardAction top bookmark ${bookmarks.has(c.id) ? 'on' : ''}" title="${bookmarks.has(c.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ICONS.star}</button></div>`
+    + `<div class="cardActionRow"><button class="cardAction bottom remove ${isHero && hero?.id !== c.id ? 'disabled' : ''}" title="Retirer un exemplaire">−</button>`
+    + `<button class="cardAction bottom add" title="Ajouter un exemplaire">+</button></div></div>` : '';
+
+  const cost = showCost ? `<div class="spire"${zone('spire')}>${c.spire}</div>` : '';
+  const attribute = isHero ? '' : `<div class="attributeTag"${zone('color')} title="Attribut ${escapeHtml(elementName(c))}"><span class="attributeGlyph">${COLORS[c.color]?.glyph || FALLBACK_ICON}</span><span class="attributeName">${escapeHtml(elementName(c))}</span></div>`;
+
+  const copies = quick ? deckCopies(c) : 0;
+  const deckCount = copies ? `<span class="libraryDeckCount" title="${copies} exemplaire${copies > 1 ? 's' : ''} dans le deck">×${copies}</span>` : '';
+
+  const subtype = c.subtype ? `<span class="typeSeparator">·</span><span class="subtypeLabel"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
+
+  const attack = c.showAttack ? `<span class="characterStatBadge attack"><span class="statIcon">⚔</span>${c.attack}</span>` : '';
+  const health = c.showHealth ? `<span class="characterStatBadge health"><span class="statIcon">♥</span>${c.health}</span>` : '';
+  const stats = attack || health ? `<div class="characterStatsOnCard"${zone('stats')}>${attack}${health}</div>` : '';
+  // Gras / italique / souligné du texte se règlent mot par mot, pas sur tout le bloc.
+  const textStyle = styleCss({ ...c.textStyle, bold: false, italic: false, underline: false }, DEFAULT_TEXT_STYLE);
+
+  return actions
+    + `<div class="cardTop ${isHero ? 'heroTop' : ''}"${zone('color')}><h3${editable('name')}>${escapeHtml(c.name)}</h3>${cost}${attribute}</div>`
+    + `<div class="art ${colorClass(c)}"${zone('image')}${backgroundImageStyle(c.image, 'linear-gradient(transparent 45%,rgba(0,0,0,.55)),')}>${deckCount}</div>`
+    + `<div class="typeRibbon"><span class="typeGlyph">${TYPE_ICONS[c.type] || FALLBACK_ICON}</span><div class="typeLabels"><span class="typeLabel"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}</div></div>`
+    + `<div class="body"${zone('color')}>${stats}<div class="cardText" style="${textStyle}"${editable('text')}>${scaledCardText(c.text || 'Carte personnalisée.')}</div><small class="setName"${zone('set')}>${escapeHtml(c.set)}</small></div>`;
+}
