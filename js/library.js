@@ -377,6 +377,47 @@ displaySpiresInput.onchange = () => {
   renderLibrary();
 };
 
+/* ---------- Retrouver une carte dans la bibliothèque ---------- */
+
+/* Remet tous les filtres à zéro (recherche, couleurs, Type, Volonté, rareté…). */
+function resetLibraryFilters() {
+  searchInput.value = '';
+  typeFilter.value = 'Tous';
+  subtypeFilter.value = 'Tous';
+  setFilter.value = 'Tous';
+  activeColors.clear();
+  RARITIES.forEach(r => activeRarities.add(r));
+  syncFilterGroup('color');
+  syncFilterGroup('rarity');
+  collectionMode = 'all';
+  setActiveButton($('#collectionTabs'), $('#collectionTabs button[data-mode="all"]'));
+  deckPresence = 'all';
+  setActiveButton($('#deckPresence'), $('#deckPresence button[data-presence="all"]'));
+  spireLow = MIN_SPIRE;
+  spireHigh = MAX_SPIRE;
+  $('#spireMin').value = MIN_SPIRE;
+  updateSpireFilter('min');   // réaffiche aussi la bibliothèque
+}
+
+/* Fait défiler la bibliothèque jusqu'à la carte et la met en évidence.
+   Si les filtres la cachent, ils sont réinitialisés. */
+function revealInLibrary(id) {
+  const card = cardsById.get(id);
+  if (!card) return;
+  if (currentView !== 'deck') setView('deck');
+  if (!cardMatchesFilters(card)) {
+    resetLibraryFilters();
+    flash('Filtres réinitialisés pour afficher la carte.');
+  }
+  const el = $(`#grid .card[data-id="${CSS.escape(id)}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('located');
+  void el.offsetWidth;   // relance l'animation si on double-clique deux fois de suite
+  el.classList.add('located');
+  setTimeout(() => el.classList.remove('located'), 1800);
+}
+
 function initLibrary() {
   buildFilterControls();
   displaySpiresInput.checked = displaySpires;

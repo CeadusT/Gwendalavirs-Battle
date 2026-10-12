@@ -1485,6 +1485,10 @@ body.draggingCard * {
   line-height: 1;
 }
 
+.card.located {
+  animation: locateCard 1.8s ease-in-out;
+}
+
 .card.freshSaved {
   border-color: #f0c766 !important;
   box-shadow: 0 0 0 3px #f0c76688,0 0 28px #f0c76677 !important;
@@ -3466,6 +3470,15 @@ body.draggingCard * {
 /* ==========================================================================
    Animations
    ========================================================================== */
+
+@keyframes locateCard {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(240,199,102,0);
+  }
+  30%, 70% {
+    box-shadow: 0 0 0 4px #f0c766,0 0 32px #f0c766aa;
+  }
+}
 
 @keyframes freshCardPulse {
   from {

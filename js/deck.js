@@ -134,7 +134,7 @@ function deckRowMarkup({ c, q }) {
   const max = limitOf(c);
   const over = q > max;
   const id = escapeHtml(c.id);
-  return `<div class="deckRow" draggable="true" data-id="${id}" title="Glisse pour réordonner, ou vers la bibliothèque pour retirer 1 exemplaire">`
+  return `<div class="deckRow" draggable="true" data-id="${id}" title="Double-clic : retrouver la carte dans la bibliothèque · glisse pour réordonner, ou vers la bibliothèque pour retirer 1 exemplaire">`
     + `<span class="deckThumb ${colorClass(c)}"${backgroundImageStyle(c.image)}></span>`
     + `<span class="mana">${c.spire}</span><span class="name" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</span>`
     + `<button class="rowBtn minus" data-id="${id}">−</button><button class="rowBtn plus" data-id="${id}">+</button>`
@@ -171,6 +171,16 @@ deckRows.addEventListener('click', e => {
   e.stopPropagation();
   if (button.classList.contains('minus')) removeCard(button.dataset.id);
   else addCard(cardsById.get(button.dataset.id));
+});
+
+/* Double-clic sur une ligne du deck (ou sur le héros) : retrouver la carte dans la bibliothèque. */
+deckRows.addEventListener('dblclick', e => {
+  const row = e.target.closest('.deckRow');
+  if (!row || e.target.closest('button')) return;
+  revealInLibrary(row.dataset.id);
+});
+$('.hero').addEventListener('dblclick', () => {
+  if (hero) revealInLibrary(hero.id);
 });
 
 deckRows.addEventListener('dragstart', e => {
