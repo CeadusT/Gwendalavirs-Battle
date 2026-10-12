@@ -169,9 +169,10 @@ const ICONS = {
   pencil: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4.2-1 10.6-10.6-3.2-3.2L5 15.8 4 20Z"/><path d="m13.9 6.9 3.2 3.2"/></svg>',
 };
 
-/* Tailles exprimées en fraction de la largeur de carte (--size), base 360 px. */
+/* Tailles exprimées en fraction de la largeur de carte (--size), base 360 px.
+   --card-min-font fixe un plancher de lisibilité (relevé en mode compact, voir library.js). */
 function scaledFontSize(px) {
-  return `max(4px,calc(var(--size)*${(Number(px) / 360).toFixed(5)}))`;
+  return `max(var(--card-min-font,4px),calc(var(--size)*${(Number(px) / 360).toFixed(5)}))`;
 }
 
 function styleCss(raw, defaults) {

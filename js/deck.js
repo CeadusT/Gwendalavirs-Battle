@@ -11,7 +11,7 @@ let deck = readJson(STORAGE_KEYS.deck, {});            // id de carte → nombre
 let deckOrder = readJson(STORAGE_KEYS.deckOrder, []);  // ordre d'affichage (et d'export)
 let deckName = readText(STORAGE_KEYS.deckName) || 'Mon deck';
 let hero = null;                                       // carte Héros (résolue une fois les cartes chargées)
-let savedDecks = readJson(STORAGE_KEYS.savedDecks, []);
+let savedDecks = [];                                   // decks enregistrés (IndexedDB, chargés au démarrage)
 let currentDeckId = readText(STORAGE_KEYS.currentDeckId);
 
 function saveDeckState() {
@@ -22,7 +22,7 @@ function saveDeckState() {
 }
 
 function saveDecks() {
-  writeJson(STORAGE_KEYS.savedDecks, savedDecks);
+  saveDeckLibrary();
   writeText(STORAGE_KEYS.currentDeckId, currentDeckId);
 }
 
@@ -315,16 +315,27 @@ function confirmDiscardDeckChanges() {
 }
 
 function renderSavedDecks() {
-  savedDeckList.innerHTML = savedDecks.length ? savedDecks.map(d => {
+  const query = deckSearchInput.value.trim().toLocaleLowerCase('fr');
+  const shown = savedDecks.filter(d => !query || String(d.name).toLocaleLowerCase('fr').includes(query));
+  $('#savedDeckCount').textContent = savedDecks.length > 1 ? `${savedDecks.length} decks enregistrés` : savedDecks.length ? '1 deck enregistré' : '';
+  if (!shown.length) {
+    savedDeckList.innerHTML = `<div class="note">${savedDecks.length ? 'Aucun deck ne correspond à cette recherche.' : 'Aucun deck enregistré.'}</div>`;
+    return;
+  }
+  savedDeckList.innerHTML = shown.map(d => {
     const total = Object.values(d.deck || {}).reduce((n, q) => n + Number(q || 0), 0) + (d.heroId ? 1 : 0);
     const isCurrent = d.id === currentDeckId;
     return `<div class="savedDeckRow ${isCurrent ? 'current' : ''}" data-id="${escapeHtml(d.id)}"><div class="savedDeckInfo"><strong>${escapeHtml(d.name)}</strong><small>${total} carte(s) · ${isCurrent ? 'deck actif' : 'sauvegardé'}</small></div>`
       + '<button data-action="open">Ouvrir</button><button data-action="rename">Renommer</button><button data-action="duplicate">Dupliquer</button><button class="deleteSavedDeck" data-action="delete">Supprimer</button></div>';
-  }).join('') : '<div class="note">Aucun deck enregistré.</div>';
+  }).join('');
 }
+
+const deckSearchInput = $('#deckSearch');
+deckSearchInput.addEventListener('input', renderSavedDecks);
 
 function openDecksModal() {
   newDeckNameInput.value = deckName;
+  deckSearchInput.value = '';
   renderSavedDecks();
   decksModal.classList.remove('hidden');
 }

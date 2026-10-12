@@ -24,8 +24,10 @@ async function initApp() {
   customCards = data.customCards.filter(c => c && typeof c === 'object').map(normalizeCard);
   editedBase = data.editedBase;
   trashCards = data.trashCards.filter(c => c && typeof c === 'object');
+  savedDecks = data.savedDecks.filter(d => d && typeof d === 'object' && d.id);
   if (data.needsCardMigration) await saveCardData();
   if (data.needsTrashMigration) await saveTrashData();
+  if (data.needsDeckMigration) await saveDeckLibrary();
 
   refreshCards();
   loadStoredHero();

@@ -109,7 +109,9 @@ grid.addEventListener('mouseover', e => {
     saveFreshlySaved();
     el.classList.remove('freshSaved');
   }
-  $('#preview').innerHTML = `<strong>${escapeHtml(card.name)}</strong>${escapeHtml(card.set)} · ${escapeHtml(card.color)} · ${escapeHtml(card.type)} · limite ${limitOf(card)}`;
+  const text = plainText(card.text).trim();
+  $('#preview').innerHTML = `<strong>${escapeHtml(card.name)}</strong>${escapeHtml(card.set)} · ${escapeHtml(card.color)} · ${escapeHtml(card.type)} · limite ${limitOf(card)}`
+    + (text ? `<span class="previewText">${escapeHtml(text)}</span>` : '');
 });
 
 function clearLibraryDropMarkers() {
@@ -289,11 +291,18 @@ $('#deckPresence').addEventListener('click', e => {
   renderLibrary();
 });
 
+/* Sous ces largeurs, les cartes passent en mode compact (texte à taille lisible minimale,
+   nom du set masqué), puis tiny (illustration réduite, élément masqué). Voir styles.css. */
+const COMPACT_CARD_SIZE = 200;
+const TINY_CARD_SIZE = 130;
+
 /* Taille des cartes (curseur, et Ctrl + molette dans layout.js). */
 function setCardSize(value) {
   const size = clamp(Number(value) || 174, Number(sizeInput.min), Number(sizeInput.max));
   sizeInput.value = size;
   grid.style.setProperty('--size', `${size}px`);
+  grid.classList.toggle('compact', size < COMPACT_CARD_SIZE);
+  grid.classList.toggle('tiny', size < TINY_CARD_SIZE);
   $('#sizeV').textContent = size;
   return size;
 }

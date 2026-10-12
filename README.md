@@ -51,8 +51,8 @@ Les scripts sont chargés dans cet ordre par `index.html` ; chaque fichier peut 
 
 | Où | Quoi |
 |---|---|
-| `localStorage` (clés `gwb.*`) | deck en cours, decks enregistrés, favoris, ordre, réglages d'affichage |
-| IndexedDB (`gwendalavirs-battle`) | cartes créées / modifiées et corbeille (avec leurs images) |
+| `localStorage` (clés `gwb.*`) | deck en cours, favoris, ordre, réglages d'affichage |
+| IndexedDB (`gwendalavirs-battle`) | cartes créées / modifiées, corbeille (avec leurs images) et decks enregistrés — pas de limite pratique |
 
 Les données des versions ≤ 1.8 (clés `deckforge.*`, corbeille dans le `localStorage`) sont reprises automatiquement au premier chargement.
 

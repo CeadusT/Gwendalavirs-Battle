@@ -651,6 +651,17 @@ body.draggingCard * {
   margin-bottom: 5px;
 }
 
+.previewMini .previewText {
+  display: block;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  color: #d5d8de;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
 .filters>.panelClose {
   margin-left: 0;
   margin-right: auto;
@@ -770,6 +781,14 @@ body.draggingCard * {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 14px;
+  /* Reste visible en haut de la bibliothèque pendant le défilement. */
+  position: sticky;
+  top: -17px;
+  z-index: 25;
+  margin-top: -17px;
+  padding: 17px 0 10px;
+  background: var(--panel2);
+  box-shadow: 0 8px 10px -8px #000c;
 }
 
 .libraryHead h1 {
@@ -3219,6 +3238,28 @@ body.draggingCard * {
   padding: 10px;
 }
 
+.deckSearchLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.deckSearchLine input {
+  flex: 1;
+  background: #0e1015;
+  color: white;
+  border: 1px solid #3c424d;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.deckSearchLine span {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 .savedDeckList {
   display: flex;
   flex-direction: column;
@@ -3291,6 +3332,63 @@ body.draggingCard * {
   }
 }
 
+
+/* ==========================================================================
+   Bibliothèque : modes compact et tiny (petites cartes, voir COMPACT_CARD_SIZE)
+   ========================================================================== */
+
+.grid.compact {
+  /* Plancher de lisibilité des textes calculés par scaledFontSize(). */
+  --card-min-font: 8px;
+}
+
+.grid.compact .card>.body {
+  padding-bottom: clamp(4px,calc(var(--size)*.04),8px);
+}
+
+.grid.compact .card .cardText {
+  line-height: 1.2;
+  /* Fondu en bas si le texte est trop long : il reste lisible en entier dans l'Aperçu. */
+  -webkit-mask-image: linear-gradient(to bottom,#000 78%,transparent);
+  mask-image: linear-gradient(to bottom,#000 78%,transparent);
+}
+
+.grid.compact .card .setName {
+  display: none;
+}
+
+/* Très petites cartes : illustration réduite pour laisser de la place au texte,
+   l'élément (déjà visible par la couleur du cadre) laisse toute la place au nom,
+   et la pastille de Volonté rétrécit. */
+.grid.tiny {
+  --card-min-font: 7px;
+}
+
+.grid.tiny .card>.art {
+  flex-basis: calc(var(--size)*.5);
+  height: calc(var(--size)*.5);
+}
+
+.grid.tiny .attributeTag {
+  display: none;
+}
+
+.grid.tiny .cardTop {
+  padding-left: calc(max(18px,calc(var(--size)*.2)) + 6px);
+  padding-right: 4px;
+  height: calc(var(--size)*.26);
+  flex-basis: calc(var(--size)*.26);
+}
+
+.grid.tiny .spire {
+  width: max(18px,calc(var(--size)*.2));
+  height: max(18px,calc(var(--size)*.2));
+  font-size: 9px;
+}
+
+.grid.tiny .spire::after {
+  display: none;
+}
 
 /* ==========================================================================
    Adaptation aux petits écrans
