@@ -334,39 +334,60 @@ function drawTypeLine(ctx, c, x, cy, right, colors, full) {
   ctx.restore();
 }
 
-function drawStat(ctx, label, icon, x, cy, kind, full) {
-  const w = 3.625 * EM;
-  const h = 1.5 * EM;
+/* Médaillon ATK | PV, aligné à droite du pied de carte (même tracé que .gw-stats). */
+function drawStats(ctx, c, right, cy, full) {
+  const parts = [];
+  if (c.showAttack) parts.push({ kind: 'attack', label: String(c.attack) });
+  if (c.showHealth) parts.push({ kind: 'health', label: String(c.health) });
+  if (!parts.length) return 0;
+  const fs = 0.8125 * EM;
+  const iconSize = fs;
+  const iconGap = 0.25 * fs;
+  const sepGap = 0.55 * fs;
+  const pad = 0.7 * fs;
+  const h = 1.846 * fs;
+  ctx.font = `700 ${fs}px ${CARD_THEME.fontTitle}`;
+  for (const p of parts) p.w = iconSize + iconGap + ctx.measureText(p.label).width;
+  const w = pad * 2 + parts.reduce((n, p) => n + p.w, 0) + (parts.length - 1) * (sepGap * 2 + 1);
+  const x = right - w;
   roundRect(ctx, x, cy - h / 2, w, h, h / 2);
   ctx.fillStyle = full ? 'rgba(10,9,7,.55)' : '#1a1610';
   ctx.fill();
   ctx.lineWidth = full ? 2 : 3;
-  ctx.strokeStyle = kind === 'health' ? (full ? 'rgba(224,122,110,.85)' : '#c8645a') : (full ? 'rgba(232,212,156,.8)' : CARD_THEME.gold);
+  ctx.strokeStyle = full ? 'rgba(232,212,156,.8)' : CARD_THEME.gold;
   ctx.stroke();
-  ctx.font = `700 ${0.8125 * EM}px ${CARD_THEME.fontTitle}`;
-  const textW = ctx.measureText(label).width;
-  const iconSize = 0.8125 * EM;
-  const start = x + (w - iconSize - 8 - textW) / 2;
-  if (kind === 'health') fillIcon(ctx, HEALTH_ICON, start + iconSize / 2, cy, iconSize, '#e07a6e');
-  else strokeIcon(ctx, ATTACK_ICON, start + iconSize / 2, cy, iconSize, CARD_THEME.goldLight, 2);
-  ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(label, start + iconSize + 8, cy + 2);
+  let px = x + pad;
+  parts.forEach((p, i) => {
+    if (i > 0) {
+      px += sepGap;
+      ctx.fillStyle = 'rgba(232,212,156,.45)';
+      ctx.fillRect(px, cy - h / 2 + 0.35 * fs, 1, h - 0.7 * fs);
+      px += 1 + sepGap;
+    }
+    if (p.kind === 'health') fillIcon(ctx, HEALTH_ICON, px + iconSize / 2, cy, iconSize, '#e07a6e');
+    else strokeIcon(ctx, ATTACK_ICON, px + iconSize / 2, cy, iconSize, CARD_THEME.goldLight, 2);
+    ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.label, px + iconSize + iconGap, cy + 2);
+    px += p.w;
+  });
+  return w;
 }
 
 function drawFooter(ctx, c, left, right, cy, full) {
-  if (c.showAttack) drawStat(ctx, String(c.attack), ATTACK_ICON, left, cy, 'attack', full);
-  if (c.showHealth) drawStat(ctx, String(c.health), HEALTH_ICON, right - 3.625 * EM, cy, 'health', full);
-  ctx.font = `500 ${0.5625 * EM}px ${CARD_THEME.fontCaps}`;
+  const statsW = drawStats(ctx, c, right, cy, full);
+  const fs = 0.5625 * EM;
+  ctx.font = `500 ${fs}px ${CARD_THEME.fontCaps}`;
   ctx.letterSpacing = '1px';
   ctx.fillStyle = full ? 'rgba(241,232,212,.6)' : '#6d5d45';
-  ctx.textAlign = 'center';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  const maxW = right - left - 2 * 3.625 * EM - 16;
+  const x = left + 0.4 * fs;
+  const maxW = right - x - statsW - (statsW ? 0.5 * EM : 0);
   let set = c.set || SETS[0];
   while (ctx.measureText(set).width > maxW && set.length > 4) set = `${set.slice(0, -2)}…`;
-  ctx.fillText(set, (left + right) / 2, cy);
+  ctx.fillText(set, x, cy);
   ctx.letterSpacing = '0px';
 }
 

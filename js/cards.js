@@ -282,8 +282,12 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté">${c.spire}</div>` : '';
   const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
-  const attack = c.showAttack ? `<span class="gw-stat gw-stat--attack" title="Attaque">${STAT_ICONS.attack}${c.attack}</span>` : '<span></span>';
-  const health = c.showHealth ? `<span class="gw-stat gw-stat--health" title="Points de vie">${STAT_ICONS.health}${c.health}</span>` : '<span></span>';
+  // Médaillon ATK | PV à droite du pied de carte (l'un ou l'autre peut être masqué).
+  const statParts = [
+    c.showAttack ? `<span class="gw-stat gw-stat--attack" title="Attaque">${STAT_ICONS.attack}${c.attack}</span>` : '',
+    c.showHealth ? `<span class="gw-stat gw-stat--health" title="Points de vie">${STAT_ICONS.health}${c.health}</span>` : '',
+  ].filter(Boolean);
+  const stats = statParts.length ? `<span class="gw-stats">${statParts.join('<i class="gw-statSep" aria-hidden="true"></i>')}</span>` : '';
   // Gras / italique / souligné du texte se règlent mot par mot, pas sur tout le bloc.
   const textStyle = styleCss({ ...c.textStyle, bold: false, italic: false, underline: false }, DEFAULT_TEXT_STYLE);
 
@@ -294,6 +298,6 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
     + `<div class="gw-head"${zone('color')}>${cost}<h3 class="gw-name" style="font-size:max(var(--card-name-min,0px),${nameSizeEm(c.name, c.fullArt)}em)"${editable('name')}>${escapeHtml(c.name)}</h3>${element}</div>`
     + `<div class="gw-rules"><div class="gw-type"${zone('color')}><span class="gw-typeName"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}<span class="gw-rarity" style="background:${RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun}" title="Rareté ${escapeHtml(c.rarity)}"></span></div>`
     + `<div class="gw-text" style="${textStyle}"${editable('text')}>${scaledCardText(c.text)}</div></div>`
-    + `<div class="gw-foot"${zone('stats')}>${attack}<span class="gw-set"${zone('set')}>${escapeHtml(c.set)}</span>${health}</div>`
+    + `<div class="gw-foot"${zone('stats')}><span class="gw-set"${zone('set')}>${escapeHtml(c.set)}</span>${stats}</div>`
     + `${deckCount}</div></div>`;
 }
