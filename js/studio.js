@@ -16,6 +16,7 @@ const sHealth = $('#studioHealth');
 const sShowAttack = $('#studioShowAttack');
 const sShowHealth = $('#studioShowHealth');
 const sLimitOverride = $('#studioLimitOverride');
+const sUnique = $('#studioUnique');
 const sImage = $('#studioImage');
 const sText = $('#studioText');
 const liveCard = $('#liveCard');
@@ -115,6 +116,7 @@ function studioCardData() {
     deckLimitOverride: sLimitOverride.value,
     image: sImage.value,
     fullArt: studioFullArt,
+    unique: sUnique.checked,
   });
 }
 
@@ -129,7 +131,7 @@ function renderLive() {
   applySpellLanguageTo($$('[contenteditable]', liveCard));
 }
 
-for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride]) {
+for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride, sUnique]) {
   input.addEventListener('input', () => {
     if (input === sType || input === sSubtype) syncTaxonomyDeleteButtons();
     renderLive();
@@ -656,6 +658,7 @@ function fillStudioForm(c) {
   sShowAttack.checked = !!c?.showAttack;
   sShowHealth.checked = !!c?.showHealth;
   sLimitOverride.value = c?.deckLimitOverride ? String(c.deckLimitOverride) : '';
+  sUnique.checked = !!c?.unique;
   sText.value = c?.text || '';
   textStyle = normalizeFontStyle(c?.textStyle, DEFAULT_TEXT_STYLE);
   typeStyle = normalizeFontStyle(c?.typeStyle, DEFAULT_TYPE_STYLE);

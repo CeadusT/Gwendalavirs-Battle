@@ -74,6 +74,7 @@ function normalizeCard(c) {
     showHealth: c.showHealth === undefined ? isCharacter || isHero : c.showHealth !== false,
     deckLimitOverride: Number(c.deckLimitOverride) > 0 ? Number(c.deckLimitOverride) : null,
     fullArt: c.fullArt === true || c.fullArt === 'true',
+    unique: c.unique === true || c.unique === 'true',
     image,
     textStyle: normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE),
     typeStyle: normalizeFontStyle(c.typeStyle || c.tribalStyle, DEFAULT_TYPE_STYLE),

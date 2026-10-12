@@ -2993,6 +2993,10 @@ body.draggingCard * {
 }
 
 /* Coût et statistiques : trois colonnes alignées */
+.uniqueToggle {
+  margin-top: 10px;
+}
+
 .statGrid {
   display: grid;
   grid-template-columns: repeat(3,minmax(0,1fr));
