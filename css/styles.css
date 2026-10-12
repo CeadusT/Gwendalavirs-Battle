@@ -2633,6 +2633,10 @@ body.draggingCard * {
   gap: 7px;
 }
 
+.libraryShareActions .wide {
+  grid-column: 1 / -1;
+}
+
 .libraryShareActions .secondary {
   padding: 8px 9px;
   font-size: 9px;

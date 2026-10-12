@@ -25,6 +25,15 @@ $('#exportLibrary').onclick = () => {
   flash('Bibliothèque exportée. Envoie ce fichier à l’autre joueur.');
 };
 
+/* Liste légère : toutes les cartes visibles, sans illustrations ni mise en forme. */
+$('#exportCardList').onclick = () => {
+  const fields = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'text'];
+  const list = cards.map(c => Object.fromEntries(fields.map(k => [k, k === 'text' ? plainText(c.text) : c[k]])));
+  const pack = { format: 'gwendalavirs-battle-card-list', version: 1, exportedAt: new Date().toISOString(), count: list.length, cards: list };
+  downloadBlob(new Blob([JSON.stringify(pack)], { type: 'application/json' }), `Gwendalavirs-Battle-Cartes-${new Date().toISOString().slice(0, 10)}.json`);
+  flash(`${list.length} cartes exportées sans illustrations.`);
+};
+
 $('#importLibrary').onclick = () => $('#importLibraryFile').click();
 
 /* Les cartes « Ewilan » et « Salim » importées reprennent l'illustration déjà
