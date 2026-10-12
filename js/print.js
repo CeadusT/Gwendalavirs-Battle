@@ -479,7 +479,18 @@ function exportDeckPdf(lowInk) {
 
 /* ---------- Tabletop Simulator ---------- */
 
-const TTS_MAX_CARDS_PER_SHEET = 70;   // limite de TTS : 10 colonnes × 7 lignes
+/* Format imposé par TTS pour un deck personnalisé : une planche de 10 colonnes × 7 lignes,
+   remplie de gauche à droite et de haut en bas. Les 69 premières cases portent les cartes ;
+   la 70e (en bas à droite) est la « carte cachée » montrée aux autres joueurs.
+   La grille garde toujours ces dimensions, même si le deck est plus petit : les valeurs à
+   saisir dans TTS sont donc toujours Width 10 et Height 7. */
+const TTS_COLS = 10;
+const TTS_ROWS = 7;
+const TTS_MAX_CARDS_PER_SHEET = TTS_COLS * TTS_ROWS - 1;
+/* Taille d'une case : proportions d'une carte (63 × 88 mm) et planche ≤ 4096 px,
+   la taille maximale que TTS gère sans perte. */
+const TTS_CELL_W = 409;
+const TTS_CELL_H = 571;
 
 function canvasPngBytes(canvas) {
   return new Promise((resolve, reject) => canvas.toBlob(async blob => (blob ? resolve(new Uint8Array(await blob.arrayBuffer())) : reject(new Error('png'))), 'image/png'));
@@ -494,27 +505,25 @@ async function jpegBytesToImage(bytes) {
   }
 }
 
-async function buildTtsSheet(cardCopies) {
-  const CELL_W = 252;
-  const CELL_H = 352;
-  const cols = Math.min(10, cardCopies.length);
-  const rows = Math.ceil(cardCopies.length / cols);
+/* Planche de faces au format TTS ; `rendered` évite de redessiner une carte déjà dessinée. */
+async function buildTtsSheet(cardCopies, backCanvas, rendered) {
   const canvas = document.createElement('canvas');
-  canvas.width = cols * CELL_W;
-  canvas.height = rows * CELL_H;
+  canvas.width = TTS_COLS * TTS_CELL_W;
+  canvas.height = TTS_ROWS * TTS_CELL_H;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#111318';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const rendered = new Map();
+  const drawCell = (image, index) => ctx.drawImage(image, (index % TTS_COLS) * TTS_CELL_W, Math.floor(index / TTS_COLS) * TTS_CELL_H, TTS_CELL_W, TTS_CELL_H);
   for (const [i, card] of cardCopies.entries()) {
     flash(`Préparation TTS ${i + 1}/${cardCopies.length}…`);
     if (!rendered.has(card.id)) rendered.set(card.id, await jpegBytesToImage(await renderCardJpeg(card)));
-    ctx.drawImage(rendered.get(card.id), (i % cols) * CELL_W, Math.floor(i / cols) * CELL_H, CELL_W, CELL_H);
+    drawCell(rendered.get(card.id), i);
   }
-  return { bytes: await canvasPngBytes(canvas), cols, rows, count: cardCopies.length };
+  drawCell(backCanvas, TTS_COLS * TTS_ROWS - 1);   // carte cachée : le dos
+  return canvasPngBytes(canvas);
 }
 
-function buildTtsBack() {
+function drawTtsBack() {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_PX_W;
   canvas.height = CARD_PX_H;
@@ -548,7 +557,7 @@ function buildTtsBack() {
   ctx.font = 'bold 27px Georgia';
   ctx.letterSpacing = '8px';
   ctx.fillText('BATTLE', 315, 605);
-  return canvasPngBytes(canvas);
+  return canvas;
 }
 
 /* ZIP sans compression (« stored »), suffisant pour des PNG déjà compressés. */
@@ -615,26 +624,28 @@ function exportDeckTts() {
   return runExport($('#exportTts'), 'Création TTS…', async copies => {
     try {
       const files = [];
-      const manifest = { format: 'gwendalavirs-battle-tts', version: 1, deckName, sheets: [] };
+      const manifest = { format: 'gwendalavirs-battle-tts', version: 2, deckName, sheets: [] };
+      const back = drawTtsBack();
+      const rendered = new Map();
       for (let i = 0; i < copies.length; i += TTS_MAX_CARDS_PER_SHEET) {
         const group = copies.slice(i, i + TTS_MAX_CARDS_PER_SHEET);
-        const sheet = await buildTtsSheet(group);
         const file = `faces-${manifest.sheets.length + 1}.png`;
-        files.push({ name: file, bytes: sheet.bytes });
-        manifest.sheets.push({ file, width: sheet.cols, height: sheet.rows, number: sheet.count, cards: group.map(c => ({ id: c.id, name: c.name })) });
+        files.push({ name: file, bytes: await buildTtsSheet(group, back, rendered) });
+        manifest.sheets.push({ file, width: TTS_COLS, height: TTS_ROWS, number: group.length, cards: group.map(c => ({ id: c.id, name: c.name })) });
       }
-      files.push({ name: 'dos.png', bytes: await buildTtsBack() });
+      files.push({ name: 'dos.png', bytes: await canvasPngBytes(back) });
       const instructions = [
         "GWENDALAVIR'S BATTLE — EXPORT TABLETOP SIMULATOR",
         '',
         '1. Décompresse cette archive.',
         '2. Dans TTS : Objects > Components > Custom > Deck.',
-        '3. Pour chaque planche faces-X.png, choisis-la dans Face et choisis dos.png dans Back.',
-        '4. Renseigne Width, Height et Number avec les valeurs ci-dessous.',
+        '3. Face : choisis faces-1.png. Back : choisis dos.png.',
+        `4. Width : ${TTS_COLS} · Height : ${TTS_ROWS} (toujours ces valeurs) · Number : voir ci-dessous.`,
         '5. Active « Back is Hidden ».',
         "6. Choisis « Cloud » lors de l'import si les autres joueurs doivent voir les cartes.",
+        '7. Plus de 69 cartes ? Recommence pour chaque planche suivante (faces-2.png, …).',
         '',
-        ...manifest.sheets.map((s, i) => `Planche ${i + 1} : Width ${s.width} · Height ${s.height} · Number ${s.number}`),
+        ...manifest.sheets.map((s, i) => `Planche ${i + 1} (${s.file}) : Width ${s.width} · Height ${s.height} · Number ${s.number}`),
         '',
       ].join('\n');
       files.push({ name: 'LISEZ-MOI.txt', bytes: textBytes(instructions) });
