@@ -34,6 +34,7 @@ const PREVIEW_TEXT = 'Le texte de la carte apparaîtra ici.';
 
 let editingId = null;                   // id de la carte en cours de modification (null = nouvelle)
 let studioRarity = RARITIES[0];
+let studioFullArt = false;              // style full art de la carte en cours
 let studioZoom = Number(readText(STORAGE_KEYS.studioZoom)) || 100;
 let textStyle = { ...DEFAULT_TEXT_STYLE };
 let typeStyle = { ...DEFAULT_TYPE_STYLE };
@@ -52,7 +53,43 @@ function buildStudioControls() {
   sColor.innerHTML = COLOR_NAMES.map(name => `<option>${name}</option>`).join('');
   sSpire.innerHTML = Array.from({ length: MAX_SPIRE - MIN_SPIRE + 1 }, (_, i) => `<option>${MIN_SPIRE + i}</option>`).join('');
   textColorPalette.innerHTML = TEXT_COLORS.map(({ hex, name }) => `<button type="button" class="textColorSwatch" data-text-color="${hex}" style="--swatch: ${hex}" title="${name}" aria-label="Texte ${name.toLowerCase()}"></button>`).join('');
+  $('#studioElementPicker').innerHTML = COLOR_NAMES.map(name => `<button type="button" class="elementChoice" role="radio" aria-checked="false" data-color="${name}" style="--el:${COLORS[name].hex}" title="${name} · ${COLORS[name].element}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[name].icon}"/></svg><span>${COLORS[name].element}</span></button>`).join('');
 }
+
+/* ---------- Élément (boutons) et style de carte (normal / full art) ---------- */
+
+function syncElementPicker() {
+  $$('.elementChoice').forEach(b => {
+    const on = b.dataset.color === sColor.value;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', String(on));
+  });
+}
+
+$('#studioElementPicker').addEventListener('click', e => {
+  const button = e.target.closest('.elementChoice');
+  if (!button) return;
+  sColor.value = button.dataset.color;
+  syncElementPicker();
+  sColor.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
+function setStudioFullArt(on) {
+  studioFullArt = !!on;
+  for (const [id, active] of [['#styleNormal', !studioFullArt], ['#styleFullArt', studioFullArt]]) {
+    $(id).classList.toggle('active', active);
+    $(id).setAttribute('aria-checked', String(active));
+  }
+}
+
+$('#styleNormal').onclick = () => {
+  setStudioFullArt(false);
+  renderLive();
+};
+$('#styleFullArt').onclick = () => {
+  setStudioFullArt(true);
+  renderLive();
+};
 
 /* ---------- Aperçu en direct ---------- */
 
@@ -77,6 +114,7 @@ function studioCardData() {
     set: sSet.value,
     deckLimitOverride: sLimitOverride.value,
     image: sImage.value,
+    fullArt: studioFullArt,
   });
 }
 
@@ -606,6 +644,8 @@ function fillStudioForm(c) {
   editingId = c?.id ?? null;
   sName.value = c?.name || '';
   sColor.value = c?.color || 'Bleu';
+  syncElementPicker();
+  setStudioFullArt(c?.fullArt);
   sType.value = c ? c.type : 'Dessin de base';
   sSubtype.value = c?.subtype || '';
   sSet.value = c?.set || SETS[0];

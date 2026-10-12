@@ -29,7 +29,7 @@ let dragGhost = null;
 /* ---------- Construction des contrôles ---------- */
 
 function buildFilterControls() {
-  $('#colorTabs').innerHTML = COLOR_NAMES.map(name => `<button class="colorTab" data-filter-group="color" data-filter-value="${name}" title="${name} · ${COLORS[name].element} · double-clic = seulement ${name}"><svg viewBox="0 0 24 24">${COLORS[name].filterIcon}</svg><span>${name}</span></button>`).join('');
+  $('#colorTabs').innerHTML = COLOR_NAMES.map(name => `<button class="colorTab" data-filter-group="color" data-filter-value="${name}" title="${name} · ${COLORS[name].element} · double-clic = seulement ${name}"><svg viewBox="0 0 24 24"><path d="${COLORS[name].icon}"/></svg><span>${name}</span></button>`).join('');
   for (const select of $$('[data-set-options]')) select.insertAdjacentHTML('beforeend', SETS.map(s => `<option>${escapeHtml(s)}</option>`).join(''));
 }
 

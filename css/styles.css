@@ -4,6 +4,88 @@
    deck, Card Studio, corbeille, fenêtres, puis adaptations aux petits écrans.
    ========================================================================== */
 
+/* Polices des cartes, hébergées avec le site (assets/fonts, licence SIL OFL). */
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../assets/fonts/cinzel-latin-600-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../assets/fonts/cinzel-latin-700-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-latin-400-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-latin-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-latin-700-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-latin-400-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-latin-700-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya Sans SC';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-sans-sc-latin-500-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Alegreya Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../assets/fonts/alegreya-sans-sc-latin-700-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ==========================================================================
    Base
    ========================================================================== */
@@ -814,26 +896,6 @@ body.draggingCard * {
   align-items: start;
 }
 
-.grid .card>.body {
-  grid-template-rows: auto minmax(0,1fr) auto auto;
-}
-
-.grid .card .cardText {
-  grid-row: 2;
-}
-
-.grid .card .characterStatsOnCard {
-  grid-row: 3;
-  align-self: end;
-  min-height: 0;
-}
-
-.grid .card .setName {
-  grid-row: 4;
-  align-self: end;
-  line-height: 1.1;
-}
-
 .grid .card.libraryDropBefore::before,
 .grid .card.libraryDropAfter::after {
   content: "";
@@ -864,123 +926,502 @@ body.draggingCard * {
    Cartes
    ========================================================================== */
 
-.card.dragging,
-.deckRow.dragging {
-  opacity: .45;
-  transform: scale(.98);
-}
+/* Charte graphique v2 — style normal (« Enluminure ») et full art.
+   Toutes les tailles sont en em : la police de base de la carte vaut 16 px pour une
+   carte de 315 px de large (--size), donc tout suit le zoom de la bibliothèque.
+   Variables posées par cardMarkup() : --el (élément), --el-light, --el-tint,
+   --sky-top / --sky-bottom (fond quand il n'y a pas d'illustration). */
 
-.art span,
-.art small {
+.card {
   position: relative;
-  z-index: 1;
-}
-
-.bleu {
-  background: linear-gradient(145deg,#2d78a4,#122333 67%);
-}
-
-.marron {
-  background: linear-gradient(145deg,#8b613d,#2d2119 67%);
-}
-
-.vert {
-  background: linear-gradient(145deg,#4f8958,#16291c 67%);
-}
-
-.violet {
-  background: linear-gradient(145deg,#71529a,#241a31 67%);
-}
-
-.rouge {
-  background: linear-gradient(145deg,#a04444,#321717 67%);
-}
-
-.body h3 {
-  font: 700 clamp(8px,calc(var(--size)*.08),19px) Georgia,serif;
-  margin: 0 0 clamp(3px,calc(var(--size)*.03),8px);
-  line-height: 1.1;
-}
-
-.card[data-color="Rouge"] {
-  --frame: var(--red);
-}
-
-.card[data-color="Bleu"] {
-  --frame: var(--blue);
-}
-
-.card[data-color="Vert"] {
-  --frame: var(--green);
-}
-
-.card[data-color="Violet"] {
-  --frame: var(--purple);
-}
-
-.card[data-color="Marron"] {
-  --frame: var(--brown);
-}
-
-.art small {
-  position: absolute;
-  bottom: clamp(4px,calc(var(--size)*.045),12px);
-  font-size: clamp(5px,calc(var(--size)*.046),11px);
-  letter-spacing: .08em;
-  padding: 0 4px;
-  text-align: center;
-  display: none;
-}
-
-.spire,
-.setName {
-  z-index: 15;
+  width: var(--size);
+  height: calc(var(--size)*1.396825);
+  font-size: calc(var(--size)*.050794);
+  border-radius: calc(var(--size)*.0476);
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+  background: #15110c;
+  box-shadow: 0 .4em 1.2em rgba(0,0,0,.45);
+  transition: transform .1s,box-shadow .1s;
 }
 
 .card:hover {
   transform: translateY(-1px);
-  border-color: #626b77;
-  box-shadow: 0 0 0 1px #ffffff12 inset,0 0 18px #0008;
+  box-shadow: 0 .5em 1.5em rgba(0,0,0,.6),0 0 0 1px rgba(232,212,156,.35);
 }
 
-.art {
+.card:active {
+  cursor: grabbing;
+}
+
+.gw {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  padding: .4375em;
+  background: #15110c;
+  color: #241c13;
+  font-family: 'Alegreya',Georgia,serif;
+}
+
+.gw--hero {
+  background: linear-gradient(160deg,#e8d49c,#8a6a2f 55%,#c9a45c);
+}
+
+.gw-body {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: .625em;
+  border: 1px solid #c9a45c;
+  background: #efe6d2;
+}
+
+.gw--hero .gw-body {
+  border-color: #fff3cf;
+}
+
+/* Illustration */
+.gw-art {
+  position: relative;
+  flex: 0 0 15.5em;
+  overflow: hidden;
+  background-color: var(--sky-bottom);
+  background-image: linear-gradient(180deg,var(--sky-top),var(--sky-bottom) 78%);
+  background-size: cover;
+  background-position: center;
+}
+
+.gw-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gw-shade {
+  display: none;
+}
+
+/* Bandeau du titre : coût, nom, élément */
+.gw-head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3.625em;
+  box-sizing: border-box;
+  padding: 0 .5625em;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  background: linear-gradient(180deg,rgba(13,11,8,.92) 0%,rgba(13,11,8,.72) 62%,rgba(13,11,8,0) 100%);
+  z-index: 2;
+}
+
+.gw-cost {
+  /* font-size 1.125em : les dimensions ci-dessous sont relatives à cette taille. */
+  flex: 0 0 2em;
+  width: 2em;
+  height: 2em;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: .111em solid #c9a45c;
+  background: radial-gradient(circle at 35% 30%,#3a3127,#120f0b 75%);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  font-size: clamp(20px,calc(var(--size)*.20),54px);
-  background-size: cover !important;
-  background-position: center !important;
-  height: calc(var(--size)*.70);
-  border-bottom: 1px solid #404750;
-  box-shadow: inset 0 0 0 1px #ffffff0d;
+  font-family: 'Cinzel',Georgia,serif;
+  font-weight: 700;
+  font-size: 1.125em;
+  color: #f3e6c4;
+  line-height: 1;
 }
 
-.body {
-  position: relative;
-  min-height: calc(var(--size)*.62);
-  padding: clamp(7px,calc(var(--size)*.055),15px);
-  padding-bottom: clamp(17px,calc(var(--size)*.12),32px);
-  background: linear-gradient(150deg,color-mix(in srgb,var(--frame) 31%,#16191f),color-mix(in srgb,var(--frame) 12%,#111419) 58%,#111419);
+.gw-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+  font-family: 'Cinzel',Georgia,serif;
+  font-weight: 600;
+  line-height: 1.12;
+  color: #f6ecd2;
+  text-shadow: 0 1px 3px rgba(0,0,0,.8);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
 }
 
-.body p {
-  color: #c2c7d0;
-  margin: .35em 0;
+.gw-el {
+  flex: 0 0 2.125em;
+  width: 2.125em;
+  height: 2.125em;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: .125em solid #e9d9a8;
+  background: var(--el);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.setName {
-  position: absolute;
-  max-width: 72%;
+.gw-el svg {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: #fffaf0;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Ligne de Type et texte de règles */
+.gw-rules {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gw-type {
+  flex: 0 0 1.625em;
+  box-sizing: border-box;
+  padding: 0 .75em;
+  display: flex;
+  align-items: center;
+  gap: .375em;
+  min-width: 0;
+  background: var(--el-tint);
+  border-top: .125em solid var(--el);
+  border-bottom: 1px solid #b89a5e;
+  font-family: 'Alegreya Sans SC','Alegreya',sans-serif;
+  letter-spacing: .08em;
+  color: #2a2117;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.gw-typeName,
+.gw-subtype {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.gw-subtype {
+  color: #5a4a35;
+}
+
+.gw-sep {
+  color: #5a4a35;
+}
+
+.gw-rarity {
+  flex: 0 0 .5625em;
+  width: .5625em;
+  height: .5625em;
+  margin-left: auto;
+  transform: rotate(45deg);
+  border: 1px solid rgba(0,0,0,.35);
+}
+
+.gw-text {
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: .625em .94em .375em;
+  line-height: 1.36;
+  color: #241c13;
+  background: linear-gradient(180deg,#f2eadb,#e8ddc5);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.gw-text b,
+.gw-text strong {
+  font-weight: 700;
+}
+
+/* Pied de carte : attaque · set · points de vie */
+.gw-foot {
+  flex: 0 0 2em;
+  box-sizing: border-box;
+  padding: 0 .5em .25em;
+  display: grid;
+  grid-template-columns: 3.625em minmax(0,1fr) 3.625em;
+  align-items: center;
+  background: #e8ddc5;
+}
+
+.gw-stat {
+  /* font-size .8125em : hauteur ≈ 24 px sur une carte de 315 px. */
+  height: 1.846em;
+  box-sizing: border-box;
+  border-radius: .923em;
+  border: .11em solid #c9a45c;
+  background: #1a1610;
+  color: #f6ecd2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25em;
+  font-family: 'Cinzel',Georgia,serif;
+  font-weight: 700;
+  font-size: .8125em;
+  line-height: 1;
+}
+
+.gw-stat--health {
+  border-color: #c8645a;
+}
+
+.gw-statIcon {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: #e8d49c;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gw-stat--health .gw-statIcon {
+  fill: #e07a6e;
+  stroke: none;
+}
+
+.gw-set {
+  text-align: center;
+  font-family: 'Alegreya Sans SC','Alegreya',sans-serif;
+  font-size: .5625em;
+  letter-spacing: .06em;
+  color: #6d5d45;
   white-space: nowrap;
-  font-size: clamp(5px,calc(var(--size)*.038),9px);
-  letter-spacing: .035em;
-  pointer-events: auto;
-  left: clamp(7px,calc(var(--size)*.055),15px);
-  bottom: clamp(5px,calc(var(--size)*.04),10px);
-  color: #d6d9df;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Nombre d'exemplaires dans le deck (bibliothèque) */
+.libraryDeckCount {
+  /* font-size .8125em : positions converties pour rester alignées sur la carte. */
+  position: absolute;
+  z-index: 3;
+  right: .92em;
+  top: 17.1em;
+  min-width: 2.7em;
+  height: 1.66em;
+  padding: 0 .55em;
+  box-sizing: border-box;
+  border-radius: .86em;
+  border: 1px solid #c9a45c;
+  background: rgba(13,11,8,.82);
+  color: #f3e6c4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel',Georgia,serif;
+  font-weight: 700;
+  font-size: .8125em;
+}
+
+/* ---------- Full art : l'illustration couvre toute la carte ---------- */
+
+.gw--full {
+  padding: 0;
+  color: #f3ead6;
+}
+
+.gw--full .gw-body {
+  border: 0;
+  border-radius: 0;
+  background: #0d0b08;
+}
+
+.gw--full .gw-body::after {
+  content: "";
+  position: absolute;
+  inset: .4375em;
+  z-index: 4;
+  border-radius: .625em;
+  border: 1px solid rgba(232,212,156,.35);
+  pointer-events: none;
+}
+
+.gw--full.gw--hero .gw-body::after {
+  border-color: rgba(232,212,156,.85);
+}
+
+.gw--full .gw-art {
+  position: absolute;
+  inset: 0;
+}
+
+.gw--full .gw-placeholder {
+  height: 72%;
+}
+
+.gw--full .gw-shade {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg,rgba(8,7,5,.78) 0%,rgba(8,7,5,.35) 12%,rgba(8,7,5,0) 21%),
+    linear-gradient(0deg,rgba(8,7,5,.94) 0%,rgba(8,7,5,.86) 27%,rgba(8,7,5,.4) 43%,rgba(8,7,5,0) 53%);
+}
+
+.gw--full .gw-head {
+  top: .5em;
+  padding: 0 1em;
+  background: none;
+}
+
+.gw--full .gw-cost {
+  border-width: .083em;
+  border-color: #e8d49c;
+  background: rgba(10,9,7,.6);
+}
+
+.gw--full .gw-name {
+  text-align: left;
+  color: #fbf3df;
+  letter-spacing: .02em;
+  text-shadow: 0 1px 4px rgba(0,0,0,.9);
+}
+
+.gw--full .gw-el {
+  border: 0;
+  background: none;
+}
+
+.gw--full .gw-el svg {
+  width: 1.375em;
+  height: 1.375em;
+  stroke: var(--el-light);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.9));
+}
+
+.gw--full .gw-rules {
+  position: absolute;
+  z-index: 2;
+  left: 1.125em;
+  right: 1.125em;
+  bottom: 2.75em;
+  height: 9.375em;
+  gap: .5em;
+}
+
+.gw--full .gw-type {
+  flex: 0 0 auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--el-light);
+}
+
+.gw--full .gw-type::after {
+  content: "";
+  order: 1;
+  flex: 1 1 auto;
+  min-width: .5em;
+  height: 1px;
+  background: linear-gradient(90deg,var(--el-light),rgba(255,255,255,0));
+}
+
+.gw--full .gw-subtype,
+.gw--full .gw-sep {
+  color: var(--el-light);
+}
+
+.gw--full .gw-rarity {
+  order: 2;
+  margin-left: 0;
+  border: 0;
+}
+
+.gw--full .gw-text {
+  padding: 0;
+  background: none;
+  color: #f1e8d4;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+.gw--full .gw-text b,
+.gw--full .gw-text strong {
+  color: #e8d49c;
+}
+
+/* Le texte « sombre » de la palette resterait invisible sur le fond sombre du full art. */
+.gw--full .gw-text [style*="rgb(32, 36, 40)"] {
+  color: #f1e8d4 !important;
+}
+
+.gw--full .gw-foot {
+  position: absolute;
+  z-index: 2;
+  left: 1em;
+  right: 1em;
+  bottom: .875em;
+  height: 1.625em;
+  padding: 0;
+  background: none;
+}
+
+.gw--full .gw-stat {
+  border-width: 1px;
+  border-color: rgba(232,212,156,.8);
+  background: rgba(10,9,7,.55);
+  color: #fbf3df;
+}
+
+.gw--full .gw-stat--health {
+  border-color: rgba(224,122,110,.85);
+}
+
+.gw--full .gw-set {
+  color: rgba(241,232,212,.6);
+}
+
+.gw--full .libraryDeckCount {
+  top: 4.43em;
+}
+
+/* ---------- Petites cartes dans la bibliothèque (voir COMPACT_CARD_SIZE) ---------- */
+
+.grid.compact {
+  --card-min-font: 8px;
+  --card-name-min: 9px;
+}
+
+.grid.compact .gw-set {
+  visibility: hidden;
+}
+
+.grid.tiny {
+  --card-min-font: 7px;
+  --card-name-min: 8px;
+}
+
+.grid.tiny .gw-el {
+  display: none;
+}
+
+.grid.compact .gw-text {
+  -webkit-mask-image: linear-gradient(to bottom,#000 78%,transparent);
+  mask-image: linear-gradient(to bottom,#000 78%,transparent);
+}
+
+.card.dragging,
+.deckRow.dragging {
+  opacity: .45;
+  transform: scale(.98);
 }
 
 .card:hover .cardActionGrid {
@@ -1048,10 +1489,6 @@ body.draggingCard * {
   border-color: #f0c766 !important;
   box-shadow: 0 0 0 3px #f0c76688,0 0 28px #f0c76677 !important;
   animation: freshCardPulse 1.15s ease-in-out infinite alternate;
-}
-
-.card:active {
-  cursor: grabbing;
 }
 
 .cardActionGrid {
@@ -1125,440 +1562,6 @@ body.draggingCard * {
 
 .cardAction.bookmark.on svg {
   fill: currentColor;
-}
-
-.characterStatsField .characterStatInputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.characterStatsField.heroStats .characterStatInputs {
-  grid-template-columns: 1fr;
-}
-
-.characterStatsField.heroStats .attackStatInput {
-  display: none;
-}
-
-.characterStatInput {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #303640;
-  border-radius: 8px;
-  background: #101217;
-  padding: 8px 9px;
-}
-
-.characterStatInput span {
-  font-size: 16px;
-}
-
-.characterStatInput input {
-  width: 100%;
-  min-width: 0;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  color: white;
-  font-weight: 900;
-  outline: 0;
-}
-
-.characterStatsOnCard {
-  align-items: center;
-}
-
-.characterStatBadge {
-  border: 1px solid #ffffff36;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(2px,calc(var(--size)*.015),4px);
-  font-weight: 900;
-  backdrop-filter: blur(2px);
-}
-
-.characterStatBadge.attack {
-  border-color: #e2b87180;
-}
-
-.characterStatBadge.health {
-  border-color: #e5717180;
-}
-
-.card.hasCharacterStats .setName {
-  bottom: clamp(4px,calc(var(--size)*.035),9px);
-}
-
-.card>.body {
-  overflow: hidden;
-}
-
-.cardText {
-  color: #c2c7d0;
-  margin: .35em 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  max-height: 100%;
-  overflow: hidden;
-}
-
-.art .libraryDeckCount {
-  position: absolute;
-  z-index: 24;
-  right: clamp(5px,calc(var(--size)*.045),11px);
-  bottom: clamp(5px,calc(var(--size)*.045),11px);
-  min-width: clamp(43px,calc(var(--size)*.31),78px);
-  height: clamp(20px,calc(var(--size)*.145),36px);
-  padding: 0 clamp(6px,calc(var(--size)*.038),10px);
-  border: 1px solid #e1b557;
-  border-radius: clamp(4px,calc(var(--size)*.028),7px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(3px,calc(var(--size)*.022),6px);
-  background: #2b2315f2;
-  color: #ffe09a;
-  font-size: clamp(9px,calc(var(--size)*.064),16px);
-  font-weight: 900;
-  line-height: 1;
-  box-shadow: 0 3px 12px #000b;
-  pointer-events: none;
-}
-
-.libraryDeckCount::before {
-  content: 'DECK';
-  font: 800 clamp(5px,calc(var(--size)*.034),8px)/1 Inter,system-ui,sans-serif;
-  letter-spacing: .08em;
-  color: #c99b43;
-}
-
-.gris {
-  background: linear-gradient(145deg,#777d84,#252a30 67%);
-}
-
-.jaune {
-  background: linear-gradient(145deg,#e2b93f,#5e430c 67%);
-}
-
-.card[data-color="Gris"] {
-  --frame: #858b92;
-}
-
-.card[data-color="Jaune"] {
-  --frame: var(--yellow);
-}
-
-.characterStatBadge .statIcon {
-  line-height: 1;
-  font-size: 1.15em;
-}
-
-.body p,
-.cardText {
-  font-size: clamp(7px,calc(var(--size)*.056),14px);
-  line-height: 1.42;
-}
-
-.cardText b,
-.cardText strong {
-  font-weight: 800;
-}
-
-.cardText i,
-.cardText em {
-  font-style: italic;
-}
-
-.cardText u {
-  text-decoration: underline;
-}
-
-.card {
-  width: var(--size);
-  position: relative;
-  user-select: none;
-  transition: transform .1s,border-color .1s;
-  --frame: #68717d;
-  border: 2px solid #3a414b;
-  cursor: grab;
-  height: calc(var(--size)*1.396825);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: Roboto,"Nimbus Sans",system-ui,sans-serif;
-  border-width: 2px;
-  border-radius: clamp(7px,calc(var(--size)*.055),14px);
-  background: #0d1115;
-  box-shadow: 0 0 0 1px #ffffff18 inset,0 5px 18px #0008;
-}
-
-.cardTop {
-  position: relative;
-  padding-right: clamp(31px,calc(var(--size)*.21),57px);
-  display: flex;
-  align-items: center;
-  flex: 0 0 calc(var(--size)*.205);
-  min-height: 0 !important;
-  height: calc(var(--size)*.205);
-  padding: clamp(3px,calc(var(--size)*.025),7px) clamp(34px,calc(var(--size)*.21),58px);
-  justify-content: center;
-  text-align: center;
-  background: linear-gradient(180deg,color-mix(in srgb,var(--frame) 62%,#20252a),color-mix(in srgb,var(--frame) 28%,#111419));
-  border-bottom: 2px solid color-mix(in srgb,var(--frame) 70%,#e7d6a7);
-  box-shadow: inset 0 0 0 2px #ffffff12;
-}
-
-.cardTop.heroTop {
-  padding-left: clamp(8px,calc(var(--size)*.05),14px);
-  padding-right: clamp(8px,calc(var(--size)*.05),14px);
-}
-
-.cardTop h3 {
-  font: 700 clamp(8px,calc(var(--size)*.075),19px) Georgia,serif;
-  margin: 0;
-  max-width: 100%;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  font-family: Roboto,"Nimbus Sans",system-ui,sans-serif;
-  font-size: clamp(8px,calc(var(--size)*.073),19px);
-  font-weight: 800;
-  line-height: 1.04;
-  text-shadow: 0 1px 2px #000;
-  letter-spacing: .005em;
-}
-
-.spire {
-  position: absolute;
-  border: 2px solid #8093aa;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: clamp(9px,calc(var(--size)*.069),17px);
-  font-weight: 900;
-  left: clamp(4px,calc(var(--size)*.032),9px) !important;
-  right: auto !important;
-  top: clamp(4px,calc(var(--size)*.027),8px);
-  width: clamp(24px,calc(var(--size)*.16),43px);
-  height: clamp(24px,calc(var(--size)*.16),43px);
-  border-color: #e4d4a4;
-  background: radial-gradient(circle at 38% 30%,#33414e,#111820 68%);
-  box-shadow: 0 2px 8px #000b,0 0 0 1px #000 inset;
-}
-
-.spire::after {
-  content: 'VOLONTÉ';
-  position: absolute;
-  top: calc(100% + 1px);
-  font-size: clamp(4px,calc(var(--size)*.023),6px);
-  letter-spacing: .04em;
-  color: #d8c68d;
-  text-shadow: 0 1px 2px #000;
-}
-
-.attributeTag {
-  position: absolute;
-  z-index: 7;
-  right: clamp(4px,calc(var(--size)*.027),8px);
-  top: clamp(4px,calc(var(--size)*.027),8px);
-  width: clamp(27px,calc(var(--size)*.175),47px);
-  height: clamp(27px,calc(var(--size)*.175),47px);
-  border: 2px solid color-mix(in srgb,var(--frame) 70%,#fff);
-  border-radius: 50%;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  place-items: center;
-  background: radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--frame) 62%,#fff),color-mix(in srgb,var(--frame) 58%,#090c10) 72%);
-  color: #fff;
-  box-shadow: 0 2px 9px #000c;
-  text-shadow: 0 1px 2px #000;
-}
-
-.attributeTag .attributeGlyph {
-  font-size: clamp(9px,calc(var(--size)*.068),18px);
-  line-height: 1;
-  align-self: end;
-}
-
-.attributeTag .attributeName {
-  width: calc(100% + 5px);
-  margin-bottom: -1px;
-  padding: 1px 0;
-  border-radius: 2px;
-  background: #0b0d10e8;
-  font-size: clamp(4px,calc(var(--size)*.025),7px);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: .03em;
-  text-align: center;
-}
-
-.card>.art {
-  min-height: 0;
-  flex: 0 0 calc(var(--size)*.755);
-  height: calc(var(--size)*.755);
-  border-bottom: 0;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb,var(--frame) 48%,#eee);
-}
-
-.art::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(transparent 66%,rgba(0,0,0,.62));
-}
-
-.typeRibbon {
-  flex: 0 0 calc(var(--size)*.115);
-  min-height: calc(var(--size)*.115);
-  display: flex;
-  align-items: center;
-  gap: clamp(3px,calc(var(--size)*.026),7px);
-  padding: 0 clamp(6px,calc(var(--size)*.045),12px);
-  border-top: 2px solid color-mix(in srgb,var(--frame) 75%,#e6d9aa);
-  border-bottom: 1px solid color-mix(in srgb,var(--frame) 45%,#d8dee5);
-  background: linear-gradient(90deg,color-mix(in srgb,var(--frame) 52%,#ede8d9),#e7e3d7 58%,color-mix(in srgb,var(--frame) 30%,#e7e3d7));
-  color: #182026;
-}
-
-.typeRibbon .typeGlyph {
-  width: clamp(12px,calc(var(--size)*.078),21px);
-  height: clamp(12px,calc(var(--size)*.078),21px);
-  border: 1px solid #1c242c66;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #f2eee2;
-  font-size: clamp(6px,calc(var(--size)*.045),12px);
-  flex: 0 0 auto;
-}
-
-.typeLabels {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: clamp(3px,calc(var(--size)*.025),7px);
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.typeLabel,
-.subtypeLabel {
-  min-width: 0;
-  margin: 0;
-  color: #182026;
-  font-family: Roboto,"Nimbus Sans",system-ui,sans-serif;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.typeLabel {
-  flex: 0 1 auto;
-  text-transform: uppercase;
-}
-
-.subtypeLabel {
-  flex: 1 1 auto;
-}
-
-.typeSeparator {
-  flex: 0 0 auto;
-  color: #555d62;
-  font-size: clamp(5px,calc(var(--size)*.035),9px);
-  font-weight: 900;
-}
-
-.card>.body,
-.grid .card>.body {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: clamp(5px,calc(var(--size)*.04),11px);
-  padding-bottom: clamp(14px,calc(var(--size)*.092),25px);
-  background: linear-gradient(155deg,#ece8dc,#d9d6ca);
-  color: #181c20;
-}
-
-.card .cardText,
-.grid .card .cardText {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  margin: 0;
-  color: #202428;
-  line-height: 1.28;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-
-.cardText>b:first-child,
-.cardText>strong:first-child {
-  font-size: 1em !important;
-  font-weight: 700;
-  line-height: inherit;
-}
-
-.card.hasCharacterStats .cardText::before {
-  content: "";
-  float: right;
-  width: var(--stats-safe-width,calc(var(--size)*.22));
-  height: 100%;
-  shape-outside: polygon(0 66%,100% 66%,100% 100%,0 100%);
-  clip-path: polygon(0 66%,100% 66%,100% 100%,0 100%);
-}
-
-.card.hasCharacterStats:has(.characterStatBadge.attack):has(.characterStatBadge.health) {
-  --stats-safe-width: calc(var(--size)*.42);
-}
-
-.card .setName,
-.grid .card .setName {
-  position: absolute;
-  left: clamp(6px,calc(var(--size)*.04),11px);
-  bottom: clamp(3px,calc(var(--size)*.025),7px);
-  max-width: 62%;
-  color: #383b3d;
-  font-size: clamp(4px,calc(var(--size)*.028),7px);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.characterStatsOnCard,
-.grid .card .characterStatsOnCard {
-  position: absolute;
-  z-index: 8;
-  left: auto;
-  right: clamp(5px,calc(var(--size)*.04),11px);
-  bottom: clamp(5px,calc(var(--size)*.036),10px);
-  display: flex;
-  gap: clamp(3px,calc(var(--size)*.022),6px);
-}
-
-.characterStatBadge,
-.grid .card .characterStatBadge {
-  min-width: clamp(29px,calc(var(--size)*.19),51px);
-  height: clamp(21px,calc(var(--size)*.135),36px);
-  padding: 0 clamp(4px,calc(var(--size)*.025),7px);
-  border-width: 2px;
-  border-radius: 999px;
-  background: #11151aec;
-  color: #fff;
-  font-size: clamp(8px,calc(var(--size)*.059),15px);
-  box-shadow: 0 2px 8px #0009;
-}
-
-.libraryDeckCount {
-  bottom: clamp(28px,calc(var(--size)*.19),51px);
 }
 
 
@@ -2045,12 +2048,6 @@ body.draggingCard * {
   resize: vertical;
 }
 
-.studioActions {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-
 .primary {
   border: 1px solid #80652f;
   background: #2b2315;
@@ -2123,18 +2120,23 @@ body.draggingCard * {
   color: #f0c66f;
 }
 
-.appNote {
-  font-size: 10px;
-  color: #777;
-  margin-top: 8px;
-}
-
 .rulesBox {
-  margin-top: 24px;
+  margin-top: 18px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: #111318;
-  padding: 14px;
+  padding: 12px 14px;
+}
+
+.rulesBox>summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #c9ced6;
+}
+
+.rulesBox[open]>summary {
+  margin-bottom: 10px;
 }
 
 .rulesBox h3 {
@@ -2485,11 +2487,6 @@ body.draggingCard * {
   box-shadow: 0 0 0 3px #f2c967,0 0 30px #f2c96755 !important;
 }
 
-.studioLiveCard .cardTop.zoneHighlight,
-.studioLiveCard .body.zoneHighlight {
-  box-shadow: inset 0 0 0 3px #f2c967,0 0 20px #f2c96755 !important;
-}
-
 .studioEditor {
   grid-column: 1;
 }
@@ -2586,16 +2583,6 @@ body.draggingCard * {
   margin-bottom: 1px;
 }
 
-.previewActions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 12px;
-}
-
-.previewActions .primary {
-  min-width: 122px;
-}
-
 .studioPreviewPane {
   display: flex;
   flex-direction: column;
@@ -2608,13 +2595,12 @@ body.draggingCard * {
   user-select: text !important;
   cursor: text !important;
   outline: none;
-  caret-color: #fff;
+  caret-color: currentColor;
   border-radius: 3px;
 }
 
 .studioLiveCard [contenteditable="true"]:focus {
   box-shadow: inset 0 0 0 2px #7fc3f3,0 0 13px #67b9ef55 !important;
-  background: #0c1722aa !important;
 }
 
 .libraryShare {
@@ -2646,39 +2632,8 @@ body.draggingCard * {
   color: #f0c66f;
 }
 
-.studioLiveCard .characterStatsOnCard[data-zone] {
-  cursor: default;
-}
-
 .field[data-field="stats"].fieldHighlight {
   background: #e9b84910;
-}
-
-.spireStudioRow {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 9px;
-  align-items: center;
-}
-
-.showSpireCheck {
-  min-height: 37px;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid #303640;
-  border-radius: 8px;
-  background: #101217;
-  color: #c5cad1;
-  font-size: 10px;
-}
-
-.showSpireCheck input {
-  width: 16px !important;
-  height: 16px;
-  accent-color: var(--accent);
 }
 
 .richTextEditor {
@@ -2787,20 +2742,9 @@ body.draggingCard * {
   cursor: pointer;
 }
 
-.statVisibility {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 7px;
-}
-
-.statVisibility .showSpireCheck {
-  min-height: 32px;
-}
-
 .taxonomyLine {
   display: grid;
-  grid-template-columns: minmax(150px,1fr) auto auto auto;
+  grid-template-columns: minmax(150px,1fr) auto auto;
   align-items: center;
   gap: 8px;
 }
@@ -2918,14 +2862,6 @@ body.draggingCard * {
   cursor: not-allowed;
 }
 
-.taxonomyHint {
-  display: block;
-  margin-top: 5px;
-  color: #747c88;
-  font-size: 9px;
-  line-height: 1.3;
-}
-
 .studioLiveCard {
   width: var(--size);
   flex: 0 0 auto;
@@ -2934,25 +2870,263 @@ body.draggingCard * {
   --size: 360px;
 }
 
-.studioLiveCard .cardTop {
-  height: calc(var(--size)*.205);
-  flex-basis: calc(var(--size)*.205);
+
+/* ---------- Card Studio : éditeur organisé en sections ---------- */
+
+.studioEditor {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0 !important;
 }
 
-.studioLiveCard>.art {
-  height: calc(var(--size)*.755);
-  flex-basis: calc(var(--size)*.755);
+.studioEditorHead h1 {
+  margin-bottom: 12px !important;
 }
 
-.studioLiveCard .typeRibbon {
-  flex-basis: calc(var(--size)*.115);
-  min-height: calc(var(--size)*.115);
+.studioSections {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 14px;
 }
 
-.studioLiveCard .cardText[contenteditable="true"] {
-  min-height: 0;
+.studioSection .formGrid {
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
 }
 
+.studioSection .field input,
+.studioSection .field select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.studioSection .taxonomyLine {
+  grid-template-columns: minmax(0,1fr) auto auto;
+}
+
+.studio .studioSection {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #111318;
+  padding: 14px;
+  overflow: visible;
+  min-width: 0;
+}
+
+.studioSectionTitle {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #d7a84b;
+}
+
+.studioSection .fieldLabelLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.studioSection .fieldLabelLine .studioSectionTitle {
+  margin: 0;
+}
+
+.fieldOptional {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: #6c727d;
+  margin-left: 4px;
+}
+
+/* Élément : une rangée de boutons à icône */
+.elementPicker {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 5px;
+}
+
+.elementChoice {
+  min-width: 0;
+  padding: 7px 2px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #0d0f13;
+  color: #8f96a1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 9px;
+}
+
+.elementChoice svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.elementChoice:hover {
+  border-color: var(--el);
+  color: #e6e8ec;
+}
+
+.elementChoice.active {
+  border-color: var(--el);
+  background: color-mix(in srgb,var(--el) 30%,#0d0f13);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--el);
+}
+
+/* Coût et statistiques : trois colonnes alignées */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+}
+
+.statCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.statCell .label {
+  margin-bottom: 0;
+}
+
+.statCell select,
+.statCell input[type=number] {
+  width: 100%;
+  box-sizing: border-box;
+  background: #101217;
+  color: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-weight: 800;
+  outline: none;
+}
+
+.showToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9aa1ac;
+  cursor: pointer;
+}
+
+.showToggle input {
+  accent-color: #d7a84b;
+}
+
+/* Options avancées repliables */
+.studioAdvanced>summary {
+  margin: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.studioAdvanced>summary::-webkit-details-marker {
+  display: none;
+}
+
+.studioAdvanced>summary::before {
+  content: "▸ ";
+  color: #8f96a1;
+}
+
+.studioAdvanced[open]>summary::before {
+  content: "▾ ";
+}
+
+.studioAdvanced[open]>summary {
+  margin-bottom: 12px;
+}
+
+.advancedRows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.advancedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 8px;
+}
+
+.advancedRow .label {
+  margin: 0;
+}
+
+.advancedRow input {
+  width: 80px;
+  background: #101217;
+  color: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+/* Barre d'actions toujours visible en bas de l'éditeur */
+.studioActionBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: auto -20px 0;
+  padding: 12px 20px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  background: linear-gradient(180deg,rgba(21,23,28,0),var(--panel) 30%);
+}
+
+.studioActionBar button {
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+/* Normal / Full art */
+.cardStyleSwitch {
+  display: flex;
+  padding: 3px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #0d0f13;
+}
+
+.cardStyleSwitch button {
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 12px;
+  background: transparent;
+  color: #8f96a1;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cardStyleSwitch button.active {
+  background: #2b2315;
+  color: #f1ca77;
+  box-shadow: inset 0 0 0 1px #80652f;
+}
 
 /* ==========================================================================
    Corbeille
@@ -3333,63 +3507,6 @@ body.draggingCard * {
 }
 
 /* ==========================================================================
-   Bibliothèque : modes compact et tiny (petites cartes, voir COMPACT_CARD_SIZE)
-   ========================================================================== */
-
-.grid.compact {
-  /* Plancher de lisibilité des textes calculés par scaledFontSize(). */
-  --card-min-font: 8px;
-}
-
-.grid.compact .card>.body {
-  padding-bottom: clamp(4px,calc(var(--size)*.04),8px);
-}
-
-.grid.compact .card .cardText {
-  line-height: 1.2;
-  /* Fondu en bas si le texte est trop long : il reste lisible en entier dans l'Aperçu. */
-  -webkit-mask-image: linear-gradient(to bottom,#000 78%,transparent);
-  mask-image: linear-gradient(to bottom,#000 78%,transparent);
-}
-
-.grid.compact .card .setName {
-  display: none;
-}
-
-/* Très petites cartes : illustration réduite pour laisser de la place au texte,
-   l'élément (déjà visible par la couleur du cadre) laisse toute la place au nom,
-   et la pastille de Volonté rétrécit. */
-.grid.tiny {
-  --card-min-font: 7px;
-}
-
-.grid.tiny .card>.art {
-  flex-basis: calc(var(--size)*.5);
-  height: calc(var(--size)*.5);
-}
-
-.grid.tiny .attributeTag {
-  display: none;
-}
-
-.grid.tiny .cardTop {
-  padding-left: calc(max(18px,calc(var(--size)*.2)) + 6px);
-  padding-right: 4px;
-  height: calc(var(--size)*.26);
-  flex-basis: calc(var(--size)*.26);
-}
-
-.grid.tiny .spire {
-  width: max(18px,calc(var(--size)*.2));
-  height: max(18px,calc(var(--size)*.2));
-  font-size: 9px;
-}
-
-.grid.tiny .spire::after {
-  display: none;
-}
-
-/* ==========================================================================
    Adaptation aux petits écrans
    ========================================================================== */
 
@@ -3454,9 +3571,6 @@ body.draggingCard * {
   }
   .savedDeckInfo {
     grid-column: 1/-1;
-  }
-  .spireStudioRow {
-    grid-template-columns: 1fr;
   }
 }
 

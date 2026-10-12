@@ -1,6 +1,6 @@
 # Gwendalavir's Battle — Deckbuilder
 
-Deckbuilder web de **Gwendalavir's Battle** (version 1.9) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator.
+Deckbuilder web de **Gwendalavir's Battle** (version 2.0) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator.
 
 Le site est **100 % statique** (HTML, CSS, JavaScript) : aucune installation, aucun serveur, aucune dépendance.
 
@@ -40,7 +40,7 @@ js/
   print.js            Dessin des cartes, export PDF et Tabletop Simulator
   layout.js           Onglets, panneaux masquables, séparateurs, zoom Ctrl + molette
   main.js             Démarrage
-assets/               Icône et modèle Excel d'import
+assets/               Icône, modèle Excel d'import et polices des cartes (assets/fonts, licence SIL OFL)
 ```
 
 Les scripts sont chargés dans cet ordre par `index.html` ; chaque fichier peut utiliser ce que définissent les précédents.
@@ -55,6 +55,15 @@ Les scripts sont chargés dans cet ordre par `index.html` ; chaque fichier peut 
 | IndexedDB (`gwendalavirs-battle`) | cartes créées / modifiées, corbeille (avec leurs images) et decks enregistrés — pas de limite pratique |
 
 Les données des versions ≤ 1.8 (clés `deckforge.*`, corbeille dans le `localStorage`) sont reprises automatiquement au premier chargement.
+
+## Design des cartes (version 2.0)
+
+Deux styles, définis par la charte graphique (css/styles.css, section « Cartes ») :
+
+- **Normal (« Enluminure »)** : cadre d'encre et filet d'or, illustration en haut, texte sur parchemin, statistiques dans leur propre bande ; cadre doré pour les Héros.
+- **Full art** : l'illustration couvre toute la carte, le texte clair se pose sur un fondu sombre. Se choisit carte par carte dans le Card Studio (bouton *Normal / Full art* au-dessus de l'aperçu) ou par la colonne `Full art (1/0)` de l'import Excel.
+
+Polices : Cinzel (noms, coût, statistiques), Alegreya (texte), Alegreya Sans SC (ligne de Type, set). Les exports PDF et Tabletop Simulator reproduisent exactement le même rendu (js/print.js).
 
 ## Changements de la version 1.9 (nettoyage)
 

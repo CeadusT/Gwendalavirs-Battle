@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=1.9">
+<link rel="stylesheet" href="css/styles.css?v=2.0">
 </head>
 <body>
 <div class="app">
@@ -91,63 +91,71 @@
 
   <!-- ===================== Card Studio ===================== -->
   <div class="studio hidden" id="studioView">
+    <!-- Éditeur : sections dans l'ordre où l'on remplit une carte, actions toujours visibles en bas -->
     <section class="studioPane studioEditor" id="studioEditorPane">
       <button class="panelClose studioPaneClose" id="hideStudioEditor" title="Masquer l'éditeur">×</button>
-      <span class="eyebrow">CRÉATION & ÉDITION</span><h1>Card Studio <span class="editModeBadge hidden" id="editBadge">Modification</span></h1>
-      <div class="formGrid">
-        <label class="field full" data-field="name"><span class="label">Nom</span><input id="studioName" placeholder="Nom de la carte"></label>
-        <label class="field" data-field="color"><span class="label">Couleur</span><select id="studioColor"></select></label>
+      <div class="studioEditorHead"><span class="eyebrow">CRÉATION & ÉDITION</span><h1>Card Studio <span class="editModeBadge hidden" id="editBadge">Modification</span></h1></div>
 
-        <div class="field full" data-field="type">
-          <span class="label">Type</span>
-          <div class="taxonomyLine">
-            <div class="taxonomyPicker"><input id="studioType" placeholder="Ex. Personnage" autocomplete="off"><button class="taxonomyToggle" id="typeToggle" type="button" aria-label="Afficher tous les Types">⌄</button><div class="taxonomyMenu hidden" id="typeMenu"></div></div>
-            <button class="createTaxonomy" id="createType" type="button">Créer</button><button class="deleteTaxonomy" id="deleteType" type="button" title="Supprimer ce Type" aria-label="Supprimer ce Type">🗑</button>
-            <div class="formatToolbar" aria-label="Format du Type">
-              <select id="typeFontSize" title="Taille du Type"><option>7</option><option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option><option>13</option><option>14</option><option>16</option><option>18</option></select>
-              <button type="button" class="formatToggle" data-format-target="type" data-format-key="bold" title="Gras"><b>B</b></button>
-              <button type="button" class="formatToggle" data-format-target="type" data-format-key="italic" title="Italique"><i>I</i></button>
-              <button type="button" class="formatToggle" data-format-target="type" data-format-key="underline" title="Souligné"><u>U</u></button>
+      <div class="studioSections">
+        <section class="studioSection">
+          <h2 class="studioSectionTitle">Identité</h2>
+          <div class="formGrid">
+            <label class="field full" data-field="name"><span class="label">Nom</span><input id="studioName" placeholder="Nom de la carte"></label>
+
+            <div class="field full" data-field="type">
+              <span class="label">Type</span>
+              <div class="taxonomyLine">
+                <div class="taxonomyPicker"><input id="studioType" placeholder="Ex. Personnage" autocomplete="off" aria-label="Type"><button class="taxonomyToggle" id="typeToggle" type="button" aria-label="Afficher tous les Types">⌄</button><div class="taxonomyMenu hidden" id="typeMenu"></div></div>
+                <button class="createTaxonomy" id="createType" type="button" title="Ajouter ce Type à la liste">Créer</button><button class="deleteTaxonomy" id="deleteType" type="button" title="Supprimer ce Type" aria-label="Supprimer ce Type">🗑</button>
+              </div>
+            </div>
+
+            <div class="field full" data-field="subtype">
+              <span class="label">Sous-type <em class="fieldOptional">facultatif</em></span>
+              <div class="taxonomyLine">
+                <div class="taxonomyPicker"><input id="studioSubtype" placeholder="Ex. Marchombre" autocomplete="off" aria-label="Sous-type"><button class="taxonomyToggle" id="subtypeToggle" type="button" aria-label="Afficher tous les Sous-types">⌄</button><div class="taxonomyMenu hidden" id="subtypeMenu"></div></div>
+                <button class="createTaxonomy" id="createSubtype" type="button" title="Ajouter ce Sous-type à la liste">Créer</button><button class="deleteTaxonomy" id="deleteSubtype" type="button" title="Supprimer ce Sous-type" aria-label="Supprimer ce Sous-type">🗑</button>
+              </div>
+            </div>
+
+            <div class="field full" data-field="color">
+              <span class="label">Élément</span>
+              <!-- Boutons générés par js/studio.js ; le <select> masqué garde la valeur -->
+              <div class="elementPicker" id="studioElementPicker" role="radiogroup" aria-label="Élément"></div>
+              <select id="studioColor" class="hidden" aria-hidden="true" tabindex="-1"></select>
+            </div>
+
+            <div class="field full" data-field="rarity">
+              <span class="label">Rareté</span>
+              <div class="studioRarity" id="studioRarity"><button data-r="Commun" class="active">Commun</button><button data-r="Rare">Rare</button><button data-r="Légendaire">Légendaire</button></div>
+            </div>
+            <label class="field full" data-field="set"><span class="label">Set</span><select id="studioSet" data-set-options></select></label>
+          </div>
+        </section>
+
+        <section class="studioSection">
+          <h2 class="studioSectionTitle">Coût et statistiques</h2>
+          <div class="statGrid">
+            <div class="statCell" data-field="spire">
+              <label class="label" for="studioSpire">Volonté</label>
+              <select id="studioSpire"></select>
+              <label class="showToggle"><input id="studioShowSpire" type="checkbox" checked><span>Afficher</span></label>
+            </div>
+            <div class="statCell" data-field="stats">
+              <label class="label" for="studioAttack">Attaque</label>
+              <input id="studioAttack" type="number" min="0" max="999" value="0">
+              <label class="showToggle"><input id="studioShowAttack" type="checkbox"><span>Afficher</span></label>
+            </div>
+            <div class="statCell" data-field="stats">
+              <label class="label" for="studioHealth">Points de vie</label>
+              <input id="studioHealth" type="number" min="0" max="999" value="0">
+              <label class="showToggle"><input id="studioShowHealth" type="checkbox"><span>Afficher</span></label>
             </div>
           </div>
-          <small class="taxonomyHint">La flèche affiche tous les Types. Tu peux aussi écrire un nouveau Type puis cliquer sur Créer.</small>
-        </div>
+        </section>
 
-        <div class="field full" data-field="subtype">
-          <span class="label">Sous-type</span>
-          <div class="taxonomyLine">
-            <div class="taxonomyPicker"><input id="studioSubtype" placeholder="Ex. Marchombre" autocomplete="off"><button class="taxonomyToggle" id="subtypeToggle" type="button" aria-label="Afficher tous les Sous-types">⌄</button><div class="taxonomyMenu hidden" id="subtypeMenu"></div></div>
-            <button class="createTaxonomy" id="createSubtype" type="button">Créer</button><button class="deleteTaxonomy" id="deleteSubtype" type="button" title="Supprimer ce Sous-type" aria-label="Supprimer ce Sous-type">🗑</button>
-            <div class="formatToolbar" aria-label="Format du Sous-type">
-              <select id="subtypeFontSize" title="Taille du Sous-type"><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>16</option><option>18</option></select>
-              <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="bold" title="Gras"><b>B</b></button>
-              <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="italic" title="Italique"><i>I</i></button>
-              <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="underline" title="Souligné"><u>U</u></button>
-            </div>
-          </div>
-          <small class="taxonomyHint">La flèche affiche tous les Sous-types. Le Sous-type reste facultatif.</small>
-        </div>
-
-        <div class="field" data-field="spire">
-          <span class="label">Coût en Volonté</span>
-          <div class="spireStudioRow"><select id="studioSpire"></select><label class="showSpireCheck"><input id="studioShowSpire" type="checkbox" checked><span>Afficher la Volonté</span></label></div>
-        </div>
-
-        <div class="field full characterStatsField" id="characterStatsField" data-field="stats">
-          <span class="label">Statistiques</span>
-          <div class="characterStatInputs"><label class="characterStatInput attackStatInput" title="Points d'attaque"><span>⚔</span><input id="studioAttack" type="number" min="0" max="999" value="0" placeholder="Attaque"></label><label class="characterStatInput" title="Points de vie"><span>♥</span><input id="studioHealth" type="number" min="0" max="999" value="0" placeholder="Vie"></label></div>
-          <div class="statVisibility"><label class="showSpireCheck"><input id="studioShowAttack" type="checkbox"><span>Afficher l’ATK</span></label><label class="showSpireCheck"><input id="studioShowHealth" type="checkbox"><span>Afficher les PV</span></label></div>
-        </div>
-
-        <label class="field" data-field="limit"><span class="label">Limite spéciale de cette carte (optionnel)</span><input id="studioLimitOverride" type="number" min="1" max="99" placeholder="Auto"></label>
-
-        <div class="field full" data-field="rarity">
-          <span class="label">Rareté</span>
-          <div class="studioRarity" id="studioRarity"><button data-r="Commun" class="active">Commun</button><button data-r="Rare">Rare</button><button data-r="Légendaire">Légendaire</button></div>
-        </div>
-
-        <div class="field full" data-field="image">
-          <span class="label">Illustration</span>
+        <section class="studioSection" data-field="image">
+          <h2 class="studioSectionTitle">Illustration</h2>
           <div class="imageDrop" id="imageDrop" tabindex="0" role="button" aria-label="Choisir une illustration">
             <input id="studioImageFile" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
             <input id="studioImage" type="hidden">
@@ -156,12 +164,12 @@
             <div class="imageDropThumb hidden" id="imageDropThumb"></div>
           </div>
           <button class="secondary imageRemove hidden" id="imageRemove" type="button">Retirer l'image</button>
-        </div>
+        </section>
 
-        <div class="field full" data-field="text">
-          <div class="fieldLabelLine"><span class="label">Texte</span><label class="spellControl" title="Le correcteur utilise les dictionnaires de Edge / Windows"><span>Orthographe</span><select id="spellLang"><option value="auto">FR + EN</option><option value="fr">Français</option><option value="en">English</option></select></label></div>
+        <section class="studioSection" data-field="text">
+          <div class="fieldLabelLine"><h2 class="studioSectionTitle">Texte</h2><label class="spellControl" title="Le correcteur utilise les dictionnaires de ton navigateur"><span>Orthographe</span><select id="spellLang"><option value="auto">FR + EN</option><option value="fr">Français</option><option value="en">English</option></select></label></div>
           <div class="formatToolbar textFormatToolbar" aria-label="Format du texte">
-            <select id="textFontSize" title="Taille du texte"><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option selected>13</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option></select>
+            <select id="textFontSize" title="Taille du texte sélectionné"><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option selected>13</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option></select>
             <button type="button" class="formatToggle" data-format-target="text" data-format-key="bold" title="Gras (Ctrl+B)"><b>B</b></button>
             <button type="button" class="formatToggle" data-format-target="text" data-format-key="italic" title="Italique (Ctrl+I)"><i>I</i></button>
             <button type="button" class="formatToggle" data-format-target="text" data-format-key="underline" title="Souligné (Ctrl+S)"><u>U</u></button>
@@ -169,33 +177,47 @@
             <div class="textColorPalette" id="textColorPalette" aria-label="Palette de couleur du texte"></div>
           </div>
           <div id="studioText" class="richTextEditor" contenteditable="true" data-placeholder="Texte de la carte…" spellcheck="true"></div>
-          <div class="spellHint">Sélectionne les mots à mettre en forme ou en couleur. Raccourcis : Ctrl+B, Ctrl+I et Ctrl+S. Clic droit pour les suggestions orthographiques.</div>
-        </div>
+          <div class="spellHint">Sélectionne des mots pour les mettre en forme. Raccourcis : Ctrl+B, Ctrl+I, Ctrl+S.</div>
+        </section>
 
-        <label class="field full" data-field="set"><span class="label">Set</span><select id="studioSet" data-set-options></select></label>
+        <details class="studioSection studioAdvanced">
+          <summary class="studioSectionTitle">Options avancées</summary>
+          <div class="advancedRows">
+            <div class="advancedRow" data-field="type">
+              <span class="label">Police du Type</span>
+              <div class="formatToolbar" aria-label="Format du Type">
+                <select id="typeFontSize" title="Taille du Type"><option>7</option><option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option><option>13</option><option>14</option><option>16</option><option>18</option></select>
+                <button type="button" class="formatToggle" data-format-target="type" data-format-key="bold" title="Gras"><b>B</b></button>
+                <button type="button" class="formatToggle" data-format-target="type" data-format-key="italic" title="Italique"><i>I</i></button>
+                <button type="button" class="formatToggle" data-format-target="type" data-format-key="underline" title="Souligné"><u>U</u></button>
+              </div>
+            </div>
+            <div class="advancedRow" data-field="subtype">
+              <span class="label">Police du Sous-type</span>
+              <div class="formatToolbar" aria-label="Format du Sous-type">
+                <select id="subtypeFontSize" title="Taille du Sous-type"><option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>16</option><option>18</option></select>
+                <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="bold" title="Gras"><b>B</b></button>
+                <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="italic" title="Italique"><i>I</i></button>
+                <button type="button" class="formatToggle" data-format-target="subtype" data-format-key="underline" title="Souligné"><u>U</u></button>
+              </div>
+            </div>
+            <label class="advancedRow" data-field="limit"><span class="label">Limite d'exemplaires spéciale</span><input id="studioLimitOverride" type="number" min="1" max="99" placeholder="Auto"></label>
+          </div>
+        </details>
       </div>
-      <div class="studioActions"><button class="secondary" id="resetCard">Nouvelle carte</button></div>
-      <div class="appNote">Depuis la bibliothèque : survole une carte puis clique sur le crayon pour l'ouvrir ici. Survole une zone de l'aperçu pour retrouver instantanément son champ d'édition.</div>
 
-      <div class="rulesBox">
-        <h3>Limites d'exemplaires par catégorie</h3>
-        <p>Par défaut tout est à 3. Tu peux changer une rareté ou un Type quand les règles évoluent. La limite la plus restrictive s'applique, sauf si une carte possède une limite spéciale.</p>
-        <!-- Lignes générées par js/studio.js (raretés + tous les Types, y compris ceux créés) -->
-        <div class="ruleColumns">
-          <div class="ruleGroup" id="rarityRules"><strong>Par rareté</strong></div>
-          <div class="ruleGroup" id="typeRules"><strong>Par Type principal</strong></div>
-        </div>
-      </div>
+      <div class="studioActionBar"><button class="secondary" id="resetCard" type="button">Nouvelle carte</button><button class="primary" id="saveCard" type="button">Sauvegarder</button></div>
     </section>
 
     <div class="studioSplitter" id="studioSplitEditor" title="Glisse pour redimensionner"></div>
 
     <section class="studioPane studioPreviewPane" id="studioPreviewPane">
       <div class="studioPreviewHead"><div><span class="eyebrow">APERÇU</span><h1>Carte</h1></div>
-        <label class="studioZoom"><span>Zoom</span><button id="zoomOut" type="button">−</button><input id="studioZoom" type="range" min="60" max="180" value="100"><button id="zoomIn" type="button">+</button><strong id="studioZoomValue">100%</strong></label>
+        <div class="cardStyleSwitch" role="radiogroup" aria-label="Style de la carte"><button type="button" id="styleNormal" class="active" role="radio" aria-checked="true">Normal</button><button type="button" id="styleFullArt" role="radio" aria-checked="false">Full art</button></div>
+        <label class="studioZoom"><span>Zoom</span><button id="zoomOut" type="button" aria-label="Dézoomer">−</button><input id="studioZoom" type="range" min="60" max="180" value="100" aria-label="Zoom de l'aperçu"><button id="zoomIn" type="button" aria-label="Zoomer">+</button><strong id="studioZoomValue">100%</strong></label>
       </div>
       <div class="studioPreviewStage" id="studioPreviewStage"><article class="card studioLiveCard" id="liveCard"></article></div>
-      <div class="zoneLegend">Survole la Volonté, l'image, le nom, le Type, le Sous-type, les statistiques, le texte ou la zone colorée pour illuminer le champ correspondant.</div><div class="previewActions"><button class="primary" id="saveCard">Sauvegarder</button></div>
+      <div class="zoneLegend">Clique sur le nom ou le texte pour les modifier directement. Survole une zone pour retrouver son réglage.</div>
     </section>
 
     <div class="studioSplitter" id="studioSplitList" title="Glisse pour redimensionner"></div>
@@ -211,6 +233,15 @@
         <input id="importLibraryFile" type="file" accept=".json,.gwb.json,application/json" hidden>
         <input id="importExcelFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
       </div>
+      <details class="rulesBox">
+        <summary>Limites d'exemplaires par catégorie</summary>
+        <p>Par défaut tout est à 3. La limite la plus restrictive entre la rareté et le Type s'applique, sauf si une carte a une limite spéciale.</p>
+        <!-- Lignes générées par js/studio.js (raretés + tous les Types, y compris ceux créés) -->
+        <div class="ruleColumns">
+          <div class="ruleGroup" id="rarityRules"><strong>Par rareté</strong></div>
+          <div class="ruleGroup" id="typeRules"><strong>Par Type principal</strong></div>
+        </div>
+      </details>
     </aside>
   </div>
 
@@ -256,17 +287,17 @@
 </div>
 
 <!-- Scripts : l'ordre compte (chaque fichier utilise ceux chargés avant lui). -->
-<script src="js/data.js?v=1.9"></script>
-<script src="js/utils.js?v=1.9"></script>
-<script src="js/storage.js?v=1.9"></script>
-<script src="js/cards.js?v=1.9"></script>
-<script src="js/library.js?v=1.9"></script>
-<script src="js/deck.js?v=1.9"></script>
-<script src="js/studio.js?v=1.9"></script>
-<script src="js/trash.js?v=1.9"></script>
-<script src="js/transfer.js?v=1.9"></script>
-<script src="js/print.js?v=1.9"></script>
-<script src="js/layout.js?v=1.9"></script>
-<script src="js/main.js?v=1.9"></script>
+<script src="js/data.js?v=2.0"></script>
+<script src="js/utils.js?v=2.0"></script>
+<script src="js/storage.js?v=2.0"></script>
+<script src="js/cards.js?v=2.0"></script>
+<script src="js/library.js?v=2.0"></script>
+<script src="js/deck.js?v=2.0"></script>
+<script src="js/studio.js?v=2.0"></script>
+<script src="js/trash.js?v=2.0"></script>
+<script src="js/transfer.js?v=2.0"></script>
+<script src="js/print.js?v=2.0"></script>
+<script src="js/layout.js?v=2.0"></script>
+<script src="js/main.js?v=2.0"></script>
 </body>
 </html>

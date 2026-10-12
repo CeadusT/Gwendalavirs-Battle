@@ -5,7 +5,7 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '1.9';
+const APP_VERSION = '2.0';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';
@@ -16,32 +16,36 @@ const MIN_SPIRE = 0;
 const MAX_SPIRE = 6;
 const DEFAULT_LIMIT = 3;
 
-/* Couleur = élément de la carte.
-   element : nom affiché sur la carte · glyph : pictogramme de la carte et du PDF
-   hex : teinte utilisée par le PDF · filterIcon : tracé SVG du bouton de filtre */
+/* Couleur = élément de la carte (charte graphique v2).
+   element : nom affiché · hex : teinte de l'élément (cartes, PDF, filtres)
+   icon : tracé SVG (trait) utilisé sur les cartes, dans les filtres et le PDF */
 const COLORS = {
-  Rouge: { element: 'Feu', glyph: '🔥', hex: '#a04444', filterIcon: '<path d="M13 3s1 4-2 6c-2 1-3 3-3 5a4 4 0 0 0 8 0c0-3-2-5-3-7 0 2-1 3-2 4 0-3 2-5 2-8Z"/>' },
-  Bleu: { element: 'Eau', glyph: '💧', hex: '#2d78a4', filterIcon: '<path d="M12 3S6 10 6 15a6 6 0 0 0 12 0c0-5-6-12-6-12Z"/>' },
-  Vert: { element: 'Vent', glyph: '🍃', hex: '#4f8958', filterIcon: '<path d="M20 4C11 4 6 8 5 17c7 1 12-3 15-13Z"/><path d="M5 19c3-5 7-8 12-11"/>' },
-  Violet: { element: 'Ombre', glyph: '〰', hex: '#71529a', filterIcon: '<path d="M3 8h10c3 0 3-4 0-4-2 0-2 1-2 2"/><path d="M3 12h15c4 0 4 5 0 5-2 0-3-1-3-2"/><path d="M3 16h8"/>' },
-  Marron: { element: 'Terre', glyph: '◆', hex: '#8b613d', filterIcon: '<path d="m5 18 2-9 5-5 5 3 2 11H5Z"/><path d="m7 9 5 3 5-5M12 12l-1 6"/>' },
-  Jaune: { element: 'Foudre', glyph: '⚡', hex: '#e2b93f', filterIcon: '<path d="m13 2-8 12h6l-1 8 9-13h-6V2Z"/>' },
-  Gris: { element: 'Neutre', glyph: '◇', hex: '#777d84', filterIcon: '<path d="M5 19 9 5h6l4 14H5Z"/><path d="M9 10h6M8 14h8"/>' },
+  Rouge: { element: 'Feu', hex: '#b5452f', icon: 'M12 3c.5 3.5-3.5 5-3.5 9a3.5 3.5 0 0 0 7 0c0-1.6-.8-2.8-1.5-3.6 2.2.7 4 2.9 4 5.6a6 6 0 0 1-12 0c0-5.2 5.4-6.8 6-11Z' },
+  Bleu: { element: 'Eau', hex: '#2f6f9f', icon: 'M12 3s-6 6.8-6 11a6 6 0 0 0 12 0c0-4.2-6-11-6-11Z' },
+  Vert: { element: 'Vent', hex: '#4f8a5b', icon: 'M3 9h11a3 3 0 1 0-3-3M3 13h15a3 3 0 1 1-3 3M3 17h7' },
+  Violet: { element: 'Ombre', hex: '#6a4c93', icon: 'M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10Z' },
+  Marron: { element: 'Terre', hex: '#8a6240', icon: 'M3 19 9 9l4 6 2-3 6 7H3Z' },
+  Jaune: { element: 'Foudre', hex: '#c9a227', icon: 'M13 2 5 14h6l-1 8 8-12h-6l1-8Z' },
+  Gris: { element: 'Neutre', hex: '#7d8288', icon: 'M12 4l7 8-7 8-7-8 7-8Z' },
 };
 const COLOR_NAMES = Object.keys(COLORS);
 const FALLBACK_COLOR = 'Gris';
 
-const TYPE_ICONS = {
-  'Héros': '✦',
-  'Dessin légendaire': '✺',
-  'Dessin avancé': '✧',
-  'Objet': '◈',
-  'Personnage': '♟',
-  'Dessin de base': '◇',
-  'Jeton': '♜',
-  'Dessin de base jeton': '⬡',
+/* Repère de rareté (losange sur la ligne de Type). */
+const RARITY_COLORS = { Commun: '#b9bec4', Rare: '#d8b25a', 'Légendaire': '#e07a3a' };
+
+/* Charte graphique des cartes : couleurs fixes et polices (voir css/styles.css, section Cartes). */
+const CARD_THEME = {
+  ink: '#15110c',
+  parchment: '#efe6d2',
+  parchmentShade: '#e8ddc5',
+  text: '#241c13',
+  gold: '#c9a45c',
+  goldLight: '#e8d49c',
+  fontTitle: "'Cinzel', Georgia, serif",
+  fontText: "'Alegreya', Georgia, serif",
+  fontCaps: "'Alegreya Sans SC', 'Alegreya', sans-serif",
 };
-const FALLBACK_ICON = '◇';
 
 /* Types dont la Volonté est masquée par défaut sur une nouvelle carte. */
 const AUTO_HIDE_SPIRE_TYPES = new Set(['Personnage', 'Objet', 'Jeton', 'Dessin de base jeton']);

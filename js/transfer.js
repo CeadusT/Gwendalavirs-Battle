@@ -284,6 +284,7 @@ function cardFromExcel(row, headers, line, embeddedImages) {
     showAttack: excelBool(get('Afficher ATK (1/0)', 'Afficher Attaque (1/0)'), isCharacter),
     showHealth: excelBool(get('Afficher PV (1/0)', 'Afficher Points de vie (1/0)'), isCharacter || type === HERO_TYPE),
     deckLimitOverride: Math.max(0, excelNumber(get('Limite spéciale', 'Limite speciale'), 0)) || null,
+    fullArt: excelBool(get('Full art (1/0)', 'Full art'), false),
     textStyle: { fontSize: excelNumber(get('Taille texte'), DEFAULT_TEXT_STYLE.fontSize) },
     typeStyle: {
       fontSize: excelNumber(get('Taille Type', 'Taille Tribal'), DEFAULT_TYPE_STYLE.fontSize),

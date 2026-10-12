@@ -1,0 +1,7 @@
+Polices des cartes (charte graphique) — SIL Open Font License 1.1.
+
+Cinzel : Copyright 2020 The Cinzel Project Authors.
+Alegreya : Copyright 2011 The Alegreya Project Authors.
+Alegreya Sans SC : Copyright 2013 The Alegreya Sans Project Authors.
+
+Texte complet de la licence : https://openfontlicense.org

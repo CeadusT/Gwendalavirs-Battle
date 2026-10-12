@@ -115,10 +115,10 @@ function richCanvasTokens(html, baseStyle) {
 
 /* Dessine le texte mot par mot avec retour à la ligne automatique.
    maxWidthAtY permet de rétrécir les lignes à côté des badges ATK / PV. */
-function drawRichCanvasText(ctx, html, { x, startY, maxY, maxWidthAtY, baseStyle, scale = 1.75 }) {
+function drawRichCanvasText(ctx, html, { x, startY, maxY, maxWidthAtY, baseStyle, scale = 2, family = CARD_THEME.fontText, lineHeight = 1.36, mapColor = color => color, boldColor = null }) {
   const basePx = Math.round((baseStyle.fontSize || DEFAULT_TEXT_STYLE.fontSize) * scale);
   const pxOf = style => Math.round((style.fontSize || baseStyle.fontSize || DEFAULT_TEXT_STYLE.fontSize) * scale);
-  const fontFor = style => `${style.italic ? 'italic ' : ''}${style.bold ? '800 ' : '400 '}${pxOf(style)}px Roboto, sans-serif`;
+  const fontFor = style => `${style.italic ? 'italic ' : ''}${style.bold ? '700 ' : '400 '}${pxOf(style)}px ${family}`;
   const widthOf = token => {
     ctx.font = fontFor(token.style);
     return ctx.measureText(token.text).width;
@@ -131,17 +131,17 @@ function drawRichCanvasText(ctx, html, { x, startY, maxY, maxWidthAtY, baseStyle
   const drawLine = () => {
     while (line.length && line[line.length - 1].text === ' ') line.pop();
     if (!line.length) {
-      y += Math.max(23, Math.round(basePx * 1.3));
+      y += Math.round(basePx * lineHeight);
       lineWidth = 0;
       linePx = basePx;
       return true;
     }
-    const height = Math.max(23, Math.round(linePx * 1.3));
+    const height = Math.round(linePx * lineHeight);
     if (y > maxY) return false;
     let cursor = x;
     for (const token of line) {
       ctx.font = fontFor(token.style);
-      ctx.fillStyle = token.style.color || baseStyle.color || DEFAULT_TEXT_COLOR;
+      ctx.fillStyle = mapColor(token.style.color || (token.style.bold && boldColor) || baseStyle.color || DEFAULT_TEXT_COLOR);
       ctx.fillText(token.text, cursor, y);
       const width = widthOf(token);
       if (token.style.underline && token.text.trim()) ctx.fillRect(cursor, y + 3, width, Math.max(1.2, Math.round(linePx / 18)));
@@ -173,174 +173,369 @@ function drawRichCanvasText(ctx, html, { x, startY, maxY, maxWidthAtY, baseStyle
   if (line.length && y <= maxY) drawLine();
 }
 
-/* ---------- Dessin d'une carte (630 × 880 px) ---------- */
+/* ---------- Dessin d'une carte (630 × 880 px) ----------
+   Reproduit le rendu HTML de la charte (css/styles.css, section Cartes) au double de la
+   carte de référence de 315 × 440 px : 1 em de la carte = 32 px ici. */
+
+const CARD_FONTS = ["600 32px 'Cinzel'", "700 32px 'Cinzel'", "400 26px 'Alegreya'", "700 26px 'Alegreya'", "italic 400 26px 'Alegreya'", "italic 700 26px 'Alegreya'", "500 22px 'Alegreya Sans SC'", "700 22px 'Alegreya Sans SC'"];
+let cardFontsReady = null;
+function loadCardFonts() {
+  cardFontsReady ??= Promise.all(CARD_FONTS.map(font => document.fonts.load(font).catch(() => null)));
+  return cardFontsReady;
+}
+
+const EM = 32;   // 1 em de la carte en pixels du rendu
+
+function strokeIcon(ctx, d, cx, cy, size, color, width = 1.8) {
+  ctx.save();
+  ctx.translate(cx - size / 2, cy - size / 2);
+  ctx.scale(size / 24, size / 24);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke(new Path2D(d));
+  ctx.restore();
+}
+
+function fillIcon(ctx, d, cx, cy, size, color) {
+  ctx.save();
+  ctx.translate(cx - size / 2, cy - size / 2);
+  ctx.scale(size / 24, size / 24);
+  ctx.fillStyle = color;
+  ctx.fill(new Path2D(d));
+  ctx.restore();
+}
+
+const ATTACK_ICON = 'M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2';
+const HEALTH_ICON = 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z';
+
+/* Illustration (recadrée pour couvrir la zone) ou paysage de remplacement. */
+async function drawArt(ctx, c, pal, area, placeholderHeight = area.h) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(area.x, area.y, area.w, area.h);
+  ctx.clip();
+  const img = await loadImage(c.image);
+  if (img) {
+    const scale = Math.max(area.w / img.width, area.h / img.height);
+    const dw = img.width * scale;
+    const dh = img.height * scale;
+    ctx.drawImage(img, area.x + (area.w - dw) / 2, area.y + (area.h - dh) / 2, dw, dh);
+  } else {
+    const sky = ctx.createLinearGradient(0, area.y, 0, area.y + placeholderHeight);
+    sky.addColorStop(0, pal.skyTop);
+    sky.addColorStop(0.78, pal.skyBottom);
+    ctx.fillStyle = sky;
+    ctx.fillRect(area.x, area.y, area.w, area.h);
+    // Même paysage que le SVG de cardMarkup() (viewBox 300 × 250, ancré en bas, recadré).
+    const scale = Math.max(area.w / 300, placeholderHeight / 250);
+    const ox = area.x + (area.w - 300 * scale) / 2;
+    const oy = area.y + placeholderHeight - 250 * scale;
+    ctx.translate(ox, oy);
+    ctx.scale(scale, scale);
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = pal.sun;
+    ctx.beginPath();
+    ctx.arc(214, 92, 24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    [pal.hillFar, pal.hillMid, pal.hillNear].forEach((color, i) => {
+      ctx.fillStyle = color;
+      ctx.fill(new Path2D(PLACEHOLDER_HILLS[i]));
+    });
+    if (placeholderHeight < area.h) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = pal.hillNear;
+      ctx.fillRect(area.x, area.y + placeholderHeight - 1, area.w, area.h - placeholderHeight + 1);
+    }
+  }
+  ctx.restore();
+}
+
+function drawCost(ctx, c, cx, cy, full) {
+  const r = 1.125 * EM;   // diamètre 2,25 em
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  if (full) {
+    ctx.fillStyle = 'rgba(10,9,7,.6)';
+  } else {
+    const g = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.4, 1, cx, cy, r);
+    g.addColorStop(0, '#3a3127');
+    g.addColorStop(0.75, '#120f0b');
+    ctx.fillStyle = g;
+  }
+  ctx.fill();
+  ctx.lineWidth = full ? 3 : 4;
+  ctx.strokeStyle = full ? CARD_THEME.goldLight : CARD_THEME.gold;
+  ctx.stroke();
+  ctx.fillStyle = full ? '#fbf3df' : '#f3e6c4';
+  ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(c.spire), cx, cy + 2);
+}
+
+function drawName(ctx, c, left, right, cy, full) {
+  const size = Number(nameSizeEm(c.name, full)) * EM;
+  ctx.font = `600 ${size}px ${CARD_THEME.fontTitle}`;
+  ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = full ? 'left' : 'center';
+  ctx.shadowColor = 'rgba(0,0,0,.85)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
+  const lines = wrapText(ctx, c.name, right - left, 2);
+  const lineH = size * 1.12;
+  lines.forEach((line, i) => ctx.fillText(line, full ? left : (left + right) / 2, cy + (i - (lines.length - 1) / 2) * lineH));
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+/* Ligne de Type : « TYPE · Sous-type » en petites capitales, puis la rareté. */
+function drawTypeLine(ctx, c, x, cy, right, colors, full) {
+  const typeSt = normalizeFontStyle(c.typeStyle, DEFAULT_TYPE_STYLE);
+  const subSt = normalizeFontStyle(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.letterSpacing = '1.5px';
+  ctx.font = `${typeSt.italic ? 'italic ' : ''}${typeSt.bold ? 700 : 500} ${typeSt.fontSize * 2}px ${CARD_THEME.fontCaps}`;
+  ctx.fillStyle = colors.type;
+  ctx.fillText(c.type, x, cy);
+  let cursor = x + ctx.measureText(c.type).width;
+  if (c.subtype) {
+    ctx.font = `${subSt.italic ? 'italic ' : ''}${subSt.bold ? 700 : 500} ${subSt.fontSize * 2}px ${CARD_THEME.fontCaps}`;
+    ctx.fillStyle = colors.subtype;
+    const sub = ` · ${c.subtype}`;
+    ctx.fillText(sub, cursor, cy);
+    cursor += ctx.measureText(sub).width;
+  }
+  ctx.letterSpacing = '0px';
+  const d = 9;   // losange de rareté
+  const rx = right - d;
+  if (full && cursor + 16 < rx - d - 8) {
+    const line = ctx.createLinearGradient(cursor + 12, 0, rx - d - 8, 0);
+    line.addColorStop(0, colors.subtype);
+    line.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = line;
+    ctx.fillRect(cursor + 12, cy - 1, rx - d - 8 - cursor - 12, 2);
+  }
+  ctx.save();
+  ctx.translate(rx, cy);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun;
+  ctx.fillRect(-d / 1.41, -d / 1.41, d * 1.41, d * 1.41);
+  if (!full) {
+    ctx.strokeStyle = 'rgba(0,0,0,.35)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-d / 1.41, -d / 1.41, d * 1.41, d * 1.41);
+  }
+  ctx.restore();
+}
+
+function drawStat(ctx, label, icon, x, cy, kind, full) {
+  const w = 3.625 * EM;
+  const h = 1.5 * EM;
+  roundRect(ctx, x, cy - h / 2, w, h, h / 2);
+  ctx.fillStyle = full ? 'rgba(10,9,7,.55)' : '#1a1610';
+  ctx.fill();
+  ctx.lineWidth = full ? 2 : 3;
+  ctx.strokeStyle = kind === 'health' ? (full ? 'rgba(224,122,110,.85)' : '#c8645a') : (full ? 'rgba(232,212,156,.8)' : CARD_THEME.gold);
+  ctx.stroke();
+  ctx.font = `700 ${0.8125 * EM}px ${CARD_THEME.fontTitle}`;
+  const textW = ctx.measureText(label).width;
+  const iconSize = 0.8125 * EM;
+  const start = x + (w - iconSize - 8 - textW) / 2;
+  if (kind === 'health') fillIcon(ctx, HEALTH_ICON, start + iconSize / 2, cy, iconSize, '#e07a6e');
+  else strokeIcon(ctx, ATTACK_ICON, start + iconSize / 2, cy, iconSize, CARD_THEME.goldLight, 2);
+  ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, start + iconSize + 8, cy + 2);
+}
+
+function drawFooter(ctx, c, left, right, cy, full) {
+  if (c.showAttack) drawStat(ctx, String(c.attack), ATTACK_ICON, left, cy, 'attack', full);
+  if (c.showHealth) drawStat(ctx, String(c.health), HEALTH_ICON, right - 3.625 * EM, cy, 'health', full);
+  ctx.font = `500 ${0.5625 * EM}px ${CARD_THEME.fontCaps}`;
+  ctx.letterSpacing = '1px';
+  ctx.fillStyle = full ? 'rgba(241,232,212,.6)' : '#6d5d45';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const maxW = right - left - 2 * 3.625 * EM - 16;
+  let set = c.set || SETS[0];
+  while (ctx.measureText(set).width > maxW && set.length > 4) set = `${set.slice(0, -2)}…`;
+  ctx.fillText(set, (left + right) / 2, cy);
+  ctx.letterSpacing = '0px';
+}
 
 async function renderCardJpeg(c, lowInk = false) {
-  await document.fonts.ready;
+  await loadCardFonts();
   const W = CARD_PX_W;
   const H = CARD_PX_H;
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d');
-  const base = COLORS[c.color]?.hex || '#67717c';
+  const pal = cardPalette(c);
   const isHero = isHeroCard(c);
-  const showAttack = !!c.showAttack;
-  const showHealth = !!c.showHealth;
-  const hasStats = showAttack || showHealth;
   const showCost = c.showSpire !== false;
+  const full = !!c.fullArt;
+  const outerRadius = 30;
 
-  // Fond et cadre arrondi
-  ctx.fillStyle = '#0c0f12';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, W, H);
-  roundRect(ctx, 8, 8, W - 16, H - 16, 30);
+  roundRect(ctx, 0, 0, W, H, outerRadius);
   ctx.save();
   ctx.clip();
 
-  // Bandeau du titre
-  const header = ctx.createLinearGradient(18, 18, W - 18, 118);
-  header.addColorStop(0, base);
-  header.addColorStop(1, '#14191e');
-  ctx.fillStyle = header;
-  ctx.fillRect(14, 14, W - 28, 108);
-  ctx.strokeStyle = '#e2d4a2';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(20, 20, W - 40, 96);
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '800 32px Roboto, sans-serif';
-  const titleLeft = showCost ? 116 : 40;
-  const titleRight = isHero ? 590 : 514;
-  const nameLines = wrapText(ctx, c.name, Math.max(220, titleRight - titleLeft), 2);
-  nameLines.forEach((text, i) => ctx.fillText(text, (titleLeft + titleRight) / 2, 64 + (i - (nameLines.length - 1) / 2) * 34));
-
-  // Coût en Volonté
-  if (showCost) {
-    ctx.fillStyle = '#121820';
-    ctx.strokeStyle = '#e2d4a2';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(67, 68, 39, 0, Math.PI * 2);
-    ctx.fill();
+  if (full) {
+    await drawArt(ctx, c, pal, { x: 0, y: 0, w: W, h: H }, H * 0.72);
+    const top = ctx.createLinearGradient(0, 0, 0, H * 0.21);
+    top.addColorStop(0, 'rgba(8,7,5,.78)');
+    top.addColorStop(0.57, 'rgba(8,7,5,.35)');
+    top.addColorStop(1, 'rgba(8,7,5,0)');
+    ctx.fillStyle = top;
+    ctx.fillRect(0, 0, W, H * 0.21);
+    const bottom = ctx.createLinearGradient(0, H, 0, H * 0.47);
+    bottom.addColorStop(0, 'rgba(8,7,5,.94)');
+    bottom.addColorStop(0.51, 'rgba(8,7,5,.86)');
+    bottom.addColorStop(0.81, 'rgba(8,7,5,.4)');
+    bottom.addColorStop(1, 'rgba(8,7,5,0)');
+    ctx.fillStyle = bottom;
+    ctx.fillRect(0, H * 0.47, W, H * 0.53);
+    roundRect(ctx, 14, 14, W - 28, H - 28, 20);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = isHero ? 'rgba(232,212,156,.85)' : 'rgba(232,212,156,.35)';
     ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = '900 35px Roboto, sans-serif';
-    ctx.fillText(String(c.spire), 67, 64);
-    ctx.fillStyle = '#e8d9a5';
-    ctx.font = '900 10px Roboto, sans-serif';
-    ctx.fillText('VOLONTÉ', 67, 91);
-  }
 
-  // Élément (pas sur les Héros)
-  if (!isHero) {
-    ctx.fillStyle = base;
-    ctx.strokeStyle = '#eef2f4';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(W - 67, 62, 41, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 25px Roboto, sans-serif';
-    ctx.fillText(COLORS[c.color]?.glyph || FALLBACK_ICON, W - 67, 53);
-    ctx.fillStyle = '#0b0e11';
-    roundRect(ctx, W - 111, 79, 88, 22, 5);
-    ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = '900 12px Roboto, sans-serif';
-    ctx.fillText(elementName(c), W - 67, 90);
-  }
+    const headY = 0.5 * EM + 1.8125 * EM;
+    const padX = EM;
+    if (showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
+    const nameLeft = padX + (showCost ? 2.25 * EM + 0.5 * EM : 0);
+    const nameRight = W - padX - (isHero ? 0 : 2.125 * EM + 0.5 * EM);
+    drawName(ctx, c, nameLeft, nameRight, headY, true);
+    if (!isHero) {
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.9)';
+      ctx.shadowBlur = 6;
+      strokeIcon(ctx, COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon, W - padX - 1.0625 * EM, headY, 1.375 * EM, pal.light);
+      ctx.restore();
+    }
 
-  // Illustration (recadrée pour remplir la zone)
-  const art = { x: 24, y: 126, w: W - 48, h: 426 };
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(art.x, art.y, art.w, art.h);
-  ctx.clip();
-  const img = await loadImage(c.image);
-  if (img) {
-    const scale = Math.max(art.w / img.width, art.h / img.height);
-    const dw = img.width * scale;
-    const dh = img.height * scale;
-    ctx.drawImage(img, art.x + (art.w - dw) / 2, art.y + (art.h - dh) / 2, dw, dh);
+    const rulesX = 1.125 * EM;
+    const rulesTop = H - 2.75 * EM - 9.375 * EM;
+    const typeY = rulesTop + 0.45 * EM;
+    drawTypeLine(ctx, c, rulesX, typeY, W - rulesX, { type: pal.light, subtype: pal.light }, true);
+    const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.shadowColor = 'rgba(0,0,0,.6)';
+    ctx.shadowBlur = 3;
+    const isDark = color => /^(#202428|rgb\(32, ?36, ?40\))$/i.test(String(color).trim());
+    drawRichCanvasText(ctx, c.text || '', {
+      x: rulesX,
+      startY: typeY + 0.5 * EM + ts.fontSize * 2,
+      maxY: H - 2.75 * EM - 6,
+      maxWidthAtY: () => W - 2 * rulesX,
+      baseStyle: { ...ts, color: '#f1e8d4' },
+      mapColor: color => (isDark(color) ? '#f1e8d4' : color),
+      boldColor: CARD_THEME.goldLight,
+    });
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    drawFooter(ctx, c, EM, W - EM, H - 0.875 * EM - 0.8125 * EM, true);
   } else {
-    const fill = ctx.createLinearGradient(art.x, art.y, art.x + art.w, art.y + art.h);
-    fill.addColorStop(0, base);
-    fill.addColorStop(1, '#121820');
-    ctx.fillStyle = fill;
-    ctx.fillRect(art.x, art.y, art.w, art.h);
-  }
-  ctx.restore();
-  ctx.strokeStyle = '#e2d4a2';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(art.x, art.y, art.w, art.h);
+    // Cadre : encre (ou or pour un Héros), puis corps arrondi avec filet d'or.
+    if (isHero) {
+      const gold = ctx.createLinearGradient(0, 0, W, H);
+      gold.addColorStop(0, '#e8d49c');
+      gold.addColorStop(0.55, '#8a6a2f');
+      gold.addColorStop(1, '#c9a45c');
+      ctx.fillStyle = gold;
+    } else {
+      ctx.fillStyle = CARD_THEME.ink;
+    }
+    ctx.fillRect(0, 0, W, H);
+    const inset = 14;
+    const bx = inset;
+    const by = inset;
+    const bw = W - 2 * inset;
+    const bh = H - 2 * inset;
+    roundRect(ctx, bx, by, bw, bh, 20);
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = CARD_THEME.parchment;
+    ctx.fillRect(bx, by, bw, bh);
 
-  // Ruban Type · Sous-type
-  const ribbonY = 552;
-  const fontOf = st => `${st.italic ? 'italic ' : ''}${st.bold ? '900 ' : '500 '}${Math.round(st.fontSize * 1.65)}px Roboto, sans-serif`;
-  ctx.fillStyle = '#e7e3d7';
-  ctx.fillRect(22, ribbonY, W - 44, 54);
-  ctx.strokeStyle = base;
-  ctx.lineWidth = 5;
-  ctx.strokeRect(22, ribbonY, W - 44, 54);
-  ctx.fillStyle = '#172027';
-  ctx.textAlign = 'left';
-  ctx.font = fontOf(normalizeFontStyle(c.typeStyle, DEFAULT_TYPE_STYLE));
-  const typeText = `${TYPE_ICONS[c.type] || FALLBACK_ICON}  ${String(c.type).toUpperCase()}`;
-  ctx.fillText(typeText, 40, ribbonY + 28);
-  if (c.subtype) {
-    const subtypeX = 40 + ctx.measureText(typeText).width;
-    ctx.font = fontOf(normalizeFontStyle(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE));
-    ctx.fillText(` · ${c.subtype}`, subtypeX, ribbonY + 28);
-  }
+    const artH = 15.5 * EM;
+    await drawArt(ctx, c, pal, { x: bx, y: by, w: bw, h: artH });
+    const head = ctx.createLinearGradient(0, by, 0, by + 3.625 * EM);
+    head.addColorStop(0, 'rgba(13,11,8,.92)');
+    head.addColorStop(0.62, 'rgba(13,11,8,.72)');
+    head.addColorStop(1, 'rgba(13,11,8,0)');
+    ctx.fillStyle = head;
+    ctx.fillRect(bx, by, bw, 3.625 * EM);
 
-  // Texte de règles
-  ctx.fillStyle = '#e3dfd3';
-  ctx.fillRect(22, 606, W - 44, H - 628);
-  const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  drawRichCanvasText(ctx, c.text || '', {
-    x: 44,
-    startY: 646,
-    maxY: 815,
-    maxWidthAtY: y => (hasStats && y >= 758 ? (showAttack && showHealth ? 270 : 414) : 542),
-    baseStyle: { ...ts, color: DEFAULT_TEXT_COLOR },
-  });
-
-  // Badges ATK / PV
-  if (hasStats) {
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 33px Roboto, sans-serif';
-    let statX = showAttack && showHealth ? W - 292 : W - 158;
-    const badge = (label, border) => {
-      ctx.fillStyle = '#11161bea';
-      roundRect(ctx, statX, 770, 122, 59, 25);
+    const headY = by + 1.8125 * EM;
+    const padX = 0.5625 * EM;
+    if (showCost) drawCost(ctx, c, bx + padX + 1.125 * EM, headY, false);
+    const nameLeft = bx + padX + (showCost ? 2.25 * EM : 0) + 0.5 * EM;
+    const nameRight = bx + bw - padX - (isHero ? 0 : 2.125 * EM) - 0.5 * EM;
+    drawName(ctx, c, nameLeft, nameRight, headY, false);
+    if (!isHero) {
+      const ex = bx + bw - padX - 1.0625 * EM;
+      ctx.beginPath();
+      ctx.arc(ex, headY, 1.0625 * EM, 0, Math.PI * 2);
+      ctx.fillStyle = pal.el;
       ctx.fill();
-      ctx.strokeStyle = border;
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#e9d9a8';
       ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.fillText(label, statX + 22, 801);
-      statX += 134;
-    };
-    if (showAttack) badge(`⚔ ${Math.max(0, Number(c.attack) || 0)}`, '#d5a84f');
-    if (showHealth) badge(`♥ ${Math.max(0, Number(c.health) || 0)}`, '#d96464');
-  }
+      strokeIcon(ctx, COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon, ex, headY, 1.125 * EM, '#fffaf0');
+    }
 
-  // Pied de carte
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#34383b';
-  ctx.font = '700 13px Roboto, sans-serif';
-  ctx.fillText(c.set || SETS[0], 42, 846);
-  ctx.textAlign = 'right';
-  ctx.fillText("Gwendalavir's Battle", W - 42, 846);
+    // Ligne de Type
+    const typeTop = by + artH;
+    const typeH = 1.625 * EM;
+    ctx.fillStyle = pal.tint;
+    ctx.fillRect(bx, typeTop, bw, typeH);
+    ctx.fillStyle = pal.el;
+    ctx.fillRect(bx, typeTop, bw, 4);
+    ctx.fillStyle = '#b89a5e';
+    ctx.fillRect(bx, typeTop + typeH - 2, bw, 2);
+    drawTypeLine(ctx, c, bx + 0.75 * EM, typeTop + typeH / 2 + 1, bx + bw - 0.75 * EM, { type: '#2a2117', subtype: '#5a4a35' }, false);
+
+    // Texte et pied
+    const footH = 2 * EM;
+    const textTop = typeTop + typeH;
+    const footTop = by + bh - footH;
+    const textBg = ctx.createLinearGradient(0, textTop, 0, footTop);
+    textBg.addColorStop(0, '#f2eadb');
+    textBg.addColorStop(1, '#e8ddc5');
+    ctx.fillStyle = textBg;
+    ctx.fillRect(bx, textTop, bw, footTop - textTop);
+    ctx.fillStyle = CARD_THEME.parchmentShade;
+    ctx.fillRect(bx, footTop, bw, footH);
+    const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    drawRichCanvasText(ctx, c.text || '', {
+      x: bx + 0.94 * EM,
+      startY: textTop + 0.625 * EM + ts.fontSize * 2,
+      maxY: footTop - 8,
+      maxWidthAtY: () => bw - 2 * 0.94 * EM,
+      baseStyle: { ...ts, color: CARD_THEME.text },
+    });
+    drawFooter(ctx, c, bx + 0.5 * EM, bx + bw - 0.5 * EM, footTop + (footH - 0.25 * EM) / 2, false);
+    ctx.restore();
+    roundRect(ctx, bx + 1, by + 1, bw - 2, bh - 2, 20);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = isHero ? '#fff3cf' : CARD_THEME.gold;
+    ctx.stroke();
+  }
   ctx.restore();
-  ctx.strokeStyle = '#46505a';
-  ctx.lineWidth = 8;
-  roundRect(ctx, 8, 8, W - 16, H - 16, 30);
-  ctx.stroke();
 
   // Version « Low conso » : désaturée et éclaircie pour économiser l'encre.
   if (lowInk) {
