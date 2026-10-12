@@ -871,6 +871,10 @@ $('#exportTts').onclick = () => {
   closeExportMenu();
   exportDeckTts();
 };
+$('#exportGame').onclick = () => {
+  closeExportMenu();
+  exportDeckForGame();
+};
 document.addEventListener('click', e => {
   if (exportDropdown.open && !exportDropdown.contains(e.target)) closeExportMenu();
 });

@@ -1,6 +1,6 @@
 # Gwendalavir's Battle — Deckbuilder
 
-Deckbuilder web de **Gwendalavir's Battle** (version 2.0) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator.
+Deckbuilder web de **Gwendalavir's Battle** (version 2.1) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
 
 Le site est **100 % statique** (HTML, CSS, JavaScript) : aucune installation, aucun serveur, aucune dépendance.
 
@@ -75,6 +75,7 @@ Polices : Cinzel (noms, coût, statistiques), Alegreya (texte), Alegreya Sans SC
 - **Decks** : une confirmation apparaît avant d'ouvrir un autre deck ou d'en créer un nouveau quand des modifications ne sont pas enregistrées.
 - **Ordre de la bibliothèque** : il n'est plus mélangé au rechargement de la page.
 - **Exports PDF / TTS** : ils suivent l'ordre du deck affiché à l'écran.
+- **Export « Logiciel de jeu (.json) »** : fichier deck (format `gwendalavirs-battle-deck`) à importer dans le logiciel de jeu ; chaque carte y est copiée en entier.
 - **Import Excel** : il accepte les variantes de saisie (« Commune », apostrophe typographique ’…). Les exemples du modèle fourni sont désormais acceptés.
 - **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Plante, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
 - **Limites d'exemplaires** : les Types créés à la main ont maintenant leur propre ligne.

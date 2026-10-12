@@ -439,3 +439,26 @@ savedDeckList.onclick = e => {
   const item = button && savedDecks.find(d => d.id === button.closest('.savedDeckRow').dataset.id);
   if (item) savedDeckActions[button.dataset.action]?.(item);
 };
+
+/* ---------- Export pour le logiciel de jeu ---------- */
+
+const GAME_CARD_FIELDS = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'text', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'image'];
+const gameCard = c => Object.fromEntries(GAME_CARD_FIELDS.filter(k => c[k] !== undefined).map(k => [k, c[k]]));
+
+/* Fichier lu par le logiciel de jeu (format « gwendalavirs-battle-deck ») :
+   chaque carte y est copiée en entier, le jeu n'a donc pas besoin de la bibliothèque. */
+function exportDeckForGame() {
+  const entries = deckEntries();
+  if (!entries.length && !hero) return flash('Le deck est vide.');
+  const data = {
+    format: 'gwendalavirs-battle-deck',
+    version: 1,
+    name: deckName,
+    exportedAt: new Date().toISOString(),
+    hero: hero ? gameCard(hero) : null,
+    cards: entries.map(({ c, q }) => ({ card: gameCard(c), quantity: q })),
+  };
+  downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `${safeFileName(deckName, 'mon-deck')}.gwb-deck.json`);
+  flash('Deck exporté pour le logiciel de jeu.');
+}
+
