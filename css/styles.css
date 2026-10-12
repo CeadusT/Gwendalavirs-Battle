@@ -3100,21 +3100,35 @@ body.draggingCard * {
 }
 
 /* Barre d'actions toujours visible en bas de l'éditeur */
+/* Pied de l'aperçu : aide à gauche, Nouvelle carte / Sauvegarder en bas à droite */
+.studioPreviewFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 12px;
+}
+
+.studioPreviewFoot .zoneLegend {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 0;
+  text-align: left;
+}
+
 .studioActionBar {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  margin: auto -20px 0;
-  padding: 12px 20px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  flex: 0 0 auto;
+  display: flex;
   gap: 8px;
-  background: linear-gradient(180deg,rgba(21,23,28,0),var(--panel) 30%);
 }
 
 .studioActionBar button {
-  padding: 12px 14px;
+  padding: 12px 18px;
   font-size: 13px;
+}
+
+.studioActionBar .primary {
+  min-width: 150px;
 }
 
 /* Normal / Full art */

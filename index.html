@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=2.3">
+<link rel="stylesheet" href="css/styles.css?v=2.4">
 </head>
 <body>
 <div class="app">
@@ -207,7 +207,6 @@
         </details>
       </div>
 
-      <div class="studioActionBar"><button class="secondary" id="resetCard" type="button">Nouvelle carte</button><button class="primary" id="saveCard" type="button">Sauvegarder</button></div>
     </section>
 
     <div class="studioSplitter" id="studioSplitEditor" title="Glisse pour redimensionner"></div>
@@ -218,7 +217,10 @@
         <label class="studioZoom"><span>Zoom</span><button id="zoomOut" type="button" aria-label="Dézoomer">−</button><input id="studioZoom" type="range" min="60" max="180" value="100" aria-label="Zoom de l'aperçu"><button id="zoomIn" type="button" aria-label="Zoomer">+</button><strong id="studioZoomValue">100%</strong></label>
       </div>
       <div class="studioPreviewStage" id="studioPreviewStage"><article class="card studioLiveCard" id="liveCard"></article></div>
-      <div class="zoneLegend">Clique sur le nom ou le texte pour les modifier directement. Survole une zone pour retrouver son réglage.</div>
+      <div class="studioPreviewFoot">
+        <div class="zoneLegend">Clique sur le nom ou le texte pour les modifier directement. Survole une zone pour retrouver son réglage.</div>
+        <div class="studioActionBar"><button class="secondary" id="resetCard" type="button">Nouvelle carte</button><button class="primary" id="saveCard" type="button">Sauvegarder</button></div>
+      </div>
     </section>
 
     <div class="studioSplitter" id="studioSplitList" title="Glisse pour redimensionner"></div>
@@ -288,17 +290,17 @@
 </div>
 
 <!-- Scripts : l'ordre compte (chaque fichier utilise ceux chargés avant lui). -->
-<script src="js/data.js?v=2.3"></script>
-<script src="js/utils.js?v=2.3"></script>
-<script src="js/storage.js?v=2.3"></script>
-<script src="js/cards.js?v=2.3"></script>
-<script src="js/library.js?v=2.3"></script>
-<script src="js/deck.js?v=2.3"></script>
-<script src="js/studio.js?v=2.3"></script>
-<script src="js/trash.js?v=2.3"></script>
-<script src="js/transfer.js?v=2.3"></script>
-<script src="js/print.js?v=2.3"></script>
-<script src="js/layout.js?v=2.3"></script>
-<script src="js/main.js?v=2.3"></script>
+<script src="js/data.js?v=2.4"></script>
+<script src="js/utils.js?v=2.4"></script>
+<script src="js/storage.js?v=2.4"></script>
+<script src="js/cards.js?v=2.4"></script>
+<script src="js/library.js?v=2.4"></script>
+<script src="js/deck.js?v=2.4"></script>
+<script src="js/studio.js?v=2.4"></script>
+<script src="js/trash.js?v=2.4"></script>
+<script src="js/transfer.js?v=2.4"></script>
+<script src="js/print.js?v=2.4"></script>
+<script src="js/layout.js?v=2.4"></script>
+<script src="js/main.js?v=2.4"></script>
 </body>
 </html>
