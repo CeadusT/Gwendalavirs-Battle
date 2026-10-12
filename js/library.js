@@ -112,7 +112,41 @@ grid.addEventListener('mouseover', e => {
   const text = plainText(card.text).trim();
   $('#preview').innerHTML = `<strong>${escapeHtml(card.name)}</strong>${escapeHtml(card.set)} · ${escapeHtml(card.color)} · ${escapeHtml(card.type)} · limite ${limitOf(card)}`
     + (text ? `<span class="previewText">${escapeHtml(text)}</span>` : '');
+  showHoverPreview(card);
 });
+
+grid.addEventListener('mouseleave', hideHoverPreview);
+
+/* ---------- Grand aperçu au survol ----------
+   La carte survolée s'affiche en grand en bas à gauche, à la largeur du panneau
+   de filtres (ou en taille par défaut si le panneau est masqué). */
+
+const hoverPreview = $('#hoverPreview');
+const HOVER_PREVIEW_MIN = 220;
+const HOVER_PREVIEW_MAX = 340;
+const HOVER_PREVIEW_DEFAULT = 260;
+
+function showHoverPreview(card) {
+  if (dragContext) return;
+  const panel = filtersPanel.getBoundingClientRect();
+  const panelVisible = !filtersPanel.classList.contains('hidden') && panel.width > 0;
+  const available = window.innerHeight - 110;   // la carte ne doit pas dépasser sous l'en-tête
+  const byHeight = Math.floor(available / 1.396825) - 20;
+  const size = Math.max(140, Math.min(panelVisible ? clamp(panel.width - 40, HOVER_PREVIEW_MIN, HOVER_PREVIEW_MAX) : HOVER_PREVIEW_DEFAULT, byHeight));
+  const el = $('#hoverPreviewCard');
+  el.className = 'card' + (card.showAttack || card.showHealth ? ' hasCharacterStats' : '');
+  el.dataset.color = card.color;
+  el.style.setProperty('--size', `${size}px`);
+  el.innerHTML = cardMarkup(card);
+  const copies = deckCopies(card);
+  $('#hoverPreviewMeta').textContent = `Limite ${limitOf(card)}${copies ? ` · ${copies} dans le deck` : ''}`;
+  hoverPreview.style.left = `${panelVisible ? panel.left + (panel.width - size) / 2 - 8 : 16}px`;
+  hoverPreview.classList.remove('hidden');
+}
+
+function hideHoverPreview() {
+  hoverPreview.classList.add('hidden');
+}
 
 function clearLibraryDropMarkers() {
   $$('#grid .card').forEach(x => x.classList.remove('libraryDropBefore', 'libraryDropAfter'));
@@ -127,6 +161,7 @@ grid.addEventListener('dragstart', e => {
   const { el, card } = cardOfEvent(e);
   if (!card) return;
   dragContext = { id: card.id, source: 'library' };
+  hideHoverPreview();
   e.dataTransfer.effectAllowed = 'copyMove';
   e.dataTransfer.setData('text/plain', card.id);
   const ghost = makeDragGhost(el);

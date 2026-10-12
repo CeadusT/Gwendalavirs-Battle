@@ -13,6 +13,7 @@ let currentView = 'deck';   // 'deck' | 'studio' | 'trash'
 
 function setView(mode) {
   currentView = mode;
+  hideHoverPreview();
   deckView.classList.toggle('hidden', mode !== 'deck');
   studioView.classList.toggle('hidden', mode !== 'studio');
   trashView.classList.toggle('hidden', mode !== 'trash');

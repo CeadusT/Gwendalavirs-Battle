@@ -3334,6 +3334,35 @@ body.draggingCard * {
 
 
 /* ==========================================================================
+   Grand aperçu de la carte survolée
+   ========================================================================== */
+
+.hoverPreview {
+  position: fixed;
+  z-index: 60;
+  bottom: 14px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #0b0d11ee;
+  box-shadow: 0 18px 50px #000d;
+  pointer-events: none;
+}
+
+.hoverPreview .card {
+  width: var(--size);
+  transform: none;
+  cursor: default;
+}
+
+.hoverPreviewMeta {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+/* ==========================================================================
    Bibliothèque : modes compact et tiny (petites cartes, voir COMPACT_CARD_SIZE)
    ========================================================================== */
 
