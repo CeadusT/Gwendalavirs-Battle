@@ -109,9 +109,6 @@ grid.addEventListener('mouseover', e => {
     saveFreshlySaved();
     el.classList.remove('freshSaved');
   }
-  const text = plainText(card.text).trim();
-  $('#preview').innerHTML = `<strong>${escapeHtml(card.name)}</strong>${escapeHtml(card.set)} · ${escapeHtml(card.color)} · ${escapeHtml(card.type)} · limite ${limitOf(card)}`
-    + (text ? `<span class="previewText">${escapeHtml(text)}</span>` : '');
   showHoverPreview(card);
 });
 

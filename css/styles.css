@@ -628,39 +628,9 @@ body.draggingCard * {
   background: transparent;
 }
 
-.previewTitle {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
 
-.previewMini {
-  margin-top: 8px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 10px;
-  background: #111318;
-  font-size: 10px;
-  color: #bbb;
-}
 
-.previewMini strong {
-  display: block;
-  color: white;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
 
-.previewMini .previewText {
-  display: block;
-  margin-top: 7px;
-  padding-top: 7px;
-  border-top: 1px solid var(--line);
-  color: #d5d8de;
-  font-size: 11px;
-  line-height: 1.4;
-  white-space: pre-line;
-}
 
 .filters>.panelClose {
   margin-left: 0;

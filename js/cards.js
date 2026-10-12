@@ -45,6 +45,8 @@ function normalizeFontStyle(raw, defaults) {
   };
 }
 
+const LEGACY_PLACEHOLDER_TEXT = 'Le texte de la carte apparaîtra ici.';
+
 /* Toute carte (base, créée, importée en JSON ou Excel) passe par ici :
    les valeurs inattendues sont corrigées pour ne jamais casser l'affichage. */
 function normalizeCard(c) {
@@ -57,7 +59,8 @@ function normalizeCard(c) {
     ...c,
     id: String(c.id ?? ''),
     name: String(c.name ?? ''),
-    text: String(c.text ?? ''),
+    // Les versions ≤ 1.8 enregistraient le texte d'exemple du Studio quand le texte était vide.
+    text: String(c.text ?? '') === LEGACY_PLACEHOLDER_TEXT ? '' : String(c.text ?? ''),
     type,
     subtype: String(c.subtype || '').trim(),
     color: COLORS[c.color] ? c.color : FALLBACK_COLOR,
@@ -233,5 +236,5 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
     + `<div class="cardTop ${isHero ? 'heroTop' : ''}"${zone('color')}><h3${editable('name')}>${escapeHtml(c.name)}</h3>${cost}${attribute}</div>`
     + `<div class="art ${colorClass(c)}"${zone('image')}${backgroundImageStyle(c.image, 'linear-gradient(transparent 45%,rgba(0,0,0,.55)),')}>${deckCount}</div>`
     + `<div class="typeRibbon"><span class="typeGlyph">${TYPE_ICONS[c.type] || FALLBACK_ICON}</span><div class="typeLabels"><span class="typeLabel"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}</div></div>`
-    + `<div class="body"${zone('color')}>${stats}<div class="cardText" style="${textStyle}"${editable('text')}>${scaledCardText(c.text || 'Carte personnalisée.')}</div><small class="setName"${zone('set')}>${escapeHtml(c.set)}</small></div>`;
+    + `<div class="body"${zone('color')}>${stats}<div class="cardText" style="${textStyle}"${editable('text')}>${scaledCardText(c.text)}</div><small class="setName"${zone('set')}>${escapeHtml(c.set)}</small></div>`;
 }
