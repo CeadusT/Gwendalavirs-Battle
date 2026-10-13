@@ -1400,6 +1400,132 @@ body.draggingCard * {
   top: 4.43em;
 }
 
+/* ---------- Dessins : coût en losange d'encre et plume sur la ligne de type ---------- */
+
+.gw--drawing .gw-cost {
+  border-radius: .25em;
+  border-color: #a9c3dd;
+  background: radial-gradient(circle at 35% 30%,#34506e,#0f1a28 75%);
+  transform: rotate(45deg) scale(.9);
+}
+
+.gw--drawing .gw-cost > span {
+  display: block;
+  transform: rotate(-45deg);
+}
+
+.gw--drawing .gw-type {
+  border-top-color: #a9c3dd;
+  background: linear-gradient(90deg,#1d2c3d,#2c4259 60%,#3a5672);
+  color: #e6eef7;
+}
+
+.gw--drawing .gw-subtype,
+.gw--drawing .gw-sep {
+  color: #b9cde0;
+}
+
+.gw-quill {
+  flex: 0 0 auto;
+  width: .8em;
+  height: .8em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gw--drawing.gw--full .gw-cost {
+  border-color: #cfe0f1;
+  background: rgba(10,20,32,.65);
+}
+
+.gw--drawing.gw--full .gw-type {
+  background: none;
+  color: #cfe0f1;
+}
+
+/* ---------- Dessins légendaires : cadre prismatique ---------- */
+
+.gw--legend {
+  background: conic-gradient(from 210deg,#ffd1e8,#c9b6ff,#a8e6ff,#b8ffd9,#fff2a8,#ffc9a8,#ffd1e8);
+}
+
+/* Reflet « foil » qui passe doucement sur le cadre. */
+.gw--legend::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg,transparent 30%,rgba(255,255,255,.75) 45%,transparent 60%);
+  background-size: 260% 100%;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  animation: legendFoil 4.5s ease-in-out infinite;
+}
+
+.gw--legend .gw-body {
+  z-index: 1;
+  border-color: #fff;
+}
+
+.gw--legend .gw-name {
+  background: linear-gradient(90deg,#fff6d6,#ffd1e8,#c9e8ff,#fff6d6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.85));
+}
+
+/* Style normal : ligne de type en plaque d'encre sertie d'un liseré irisé. */
+.gw--legend.gw--normal .gw-type {
+  flex-basis: 1.45em;
+  margin: .1em .35em;
+  border: .13em solid transparent;
+  border-radius: .4em;
+  background:
+    linear-gradient(180deg,#2e2540,#1b1626) padding-box,
+    linear-gradient(90deg,#ffb3d9,#c7b3ff,#9fe0ff,#a8f5c8,#fff0a0,#ffc3a0) border-box;
+  color: #fff6e6;
+}
+
+.gw--legend.gw--normal .gw-subtype,
+.gw--legend.gw--normal .gw-sep {
+  color: #d9cfff;
+}
+
+/* Full art : le Type et son filet prennent les couleurs irisées. */
+.gw--legend.gw--full .gw-body::after {
+  border: 2px solid rgba(255,255,255,.85);
+}
+
+.gw--legend.gw--full .gw-typeName {
+  background: linear-gradient(90deg,#ffb3d9,#c7b3ff,#9fe0ff,#a8f5c8,#fff0a0,#ffc3a0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gw--legend.gw--full .gw-type::after {
+  height: 2px;
+  background: linear-gradient(90deg,#ffb3d9,#c7b3ff,#9fe0ff,#a8f5c8,#fff0a0,rgba(255,195,160,0));
+}
+
+@keyframes legendFoil {
+  0% { background-position: 120% 0; }
+  50% { background-position: -20% 0; }
+  100% { background-position: 120% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gw--legend::before {
+    animation: none;
+  }
+}
+
 /* ---------- Petites cartes dans la bibliothèque (voir COMPACT_CARD_SIZE) ---------- */
 
 .grid.compact {

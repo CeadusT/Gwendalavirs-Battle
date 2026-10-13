@@ -85,6 +85,17 @@ function normalizeCard(c) {
 const isBaseId = id => String(id).startsWith('base-');
 const isHeroCard = c => c?.type === HERO_TYPE;
 
+/* Famille visuelle d'une carte : 'legend' (Dessin légendaire), 'drawing' (autre Dessin) ou ''.
+   Les Dessins ont un coût en losange et une plume sur la ligne de type ;
+   les Dessins légendaires un cadre prismatique (voir css/styles.css, section Cartes). */
+function cardKind(c) {
+  const type = String(c?.type || '');
+  if (!/dessin/i.test(type)) return '';
+  return /légendaire/i.test(type) ? 'legend' : 'drawing';
+}
+
+const QUILL_ICON = 'M20 4c-7 0-12 4-14 11l-1 5 4-2c7-2 11-7 11-14ZM5 20l7-7';
+
 /* ---------- Bibliothèque ---------- */
 
 function trashedIds() {
@@ -267,7 +278,8 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const isHero = isHeroCard(c);
   const showCost = (studio || displaySpires) && c.showSpire !== false;
   const pal = cardPalette(c);
-  const variant = `gw ${c.fullArt ? 'gw--full' : 'gw--normal'}${isHero ? ' gw--hero' : ''}`;
+  const kind = cardKind(c);
+  const variant = `gw ${c.fullArt ? 'gw--full' : 'gw--normal'}${isHero ? ' gw--hero' : ''}${kind ? ` gw--${kind}` : ''}`;
   const vars = `--el:${pal.el};--el-light:${pal.light};--el-tint:${pal.tint};--sky-top:${pal.skyTop};--sky-bottom:${pal.skyBottom}`;
 
   const actions = quick ? `<div class="cardActionGrid">`
@@ -279,7 +291,8 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const copies = quick ? deckCopies(c) : 0;
   const deckCount = copies ? `<span class="libraryDeckCount" title="${copies} exemplaire${copies > 1 ? 's' : ''} dans le deck">×${copies}</span>` : '';
 
-  const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté">${c.spire}</div>` : '';
+  const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
+  const quill = kind === 'drawing' ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><path d="${QUILL_ICON}"/></svg>` : '';
   const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
   // Médaillon ATK | PV à droite du pied de carte (l'un ou l'autre peut être masqué).
@@ -296,7 +309,7 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
     + `<div class="gw-art"${zone('image')}${backgroundImageStyle(c.image)}>${c.image ? '' : placeholderArt(pal)}</div>`
     + `<div class="gw-shade" aria-hidden="true"></div>`
     + `<div class="gw-head"${zone('color')}>${cost}<h3 class="gw-name" style="font-size:max(var(--card-name-min,0px),${nameSizeEm(c.name, c.fullArt)}em)"${editable('name')}>${escapeHtml(c.name)}</h3>${element}</div>`
-    + `<div class="gw-rules"><div class="gw-type"${zone('color')}><span class="gw-typeName"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}<span class="gw-rarity" style="background:${RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun}" title="Rareté ${escapeHtml(c.rarity)}"></span></div>`
+    + `<div class="gw-rules"><div class="gw-type"${zone('color')}>${quill}<span class="gw-typeName"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}<span class="gw-rarity" style="background:${RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun}" title="Rareté ${escapeHtml(c.rarity)}"></span></div>`
     + `<div class="gw-text" style="${textStyle}"${editable('text')}>${scaledCardText(c.text)}</div></div>`
     + `<div class="gw-foot"${zone('stats')}><span class="gw-set"${zone('set')}>${escapeHtml(c.set)}</span>${stats}</div>`
     + `${deckCount}</div></div>`;

@@ -253,9 +253,44 @@ async function drawArt(ctx, c, pal, area, placeholderHeight = area.h) {
   ctx.restore();
 }
 
+/* Dégradé irisé des Dessins légendaires, de gauche à droite. */
+function prismGradient(ctx, x0, x1, fadeEnd = false) {
+  const g = ctx.createLinearGradient(x0, 0, x1, 0);
+  ['#ffb3d9', '#c7b3ff', '#9fe0ff', '#a8f5c8', '#fff0a0'].forEach((col, i) => g.addColorStop(i / 5, col));
+  g.addColorStop(1, fadeEnd ? 'rgba(255,195,160,0)' : '#ffc3a0');
+  return g;
+}
+
 function drawCost(ctx, c, cx, cy, full) {
   const r = 1.125 * EM;   // diamètre 2,25 em
   ctx.beginPath();
+  if (cardKind(c) === 'drawing') {
+    // Dessin : losange d'encre bleue.
+    const d = 1.38 * EM;
+    ctx.moveTo(cx, cy - d);
+    ctx.lineTo(cx + d, cy);
+    ctx.lineTo(cx, cy + d);
+    ctx.lineTo(cx - d, cy);
+    ctx.closePath();
+    if (full) {
+      ctx.fillStyle = 'rgba(10,20,32,.65)';
+    } else {
+      const g = ctx.createRadialGradient(cx - d * 0.3, cy - d * 0.4, 1, cx, cy, d);
+      g.addColorStop(0, '#34506e');
+      g.addColorStop(0.75, '#0f1a28');
+      ctx.fillStyle = g;
+    }
+    ctx.fill();
+    ctx.lineWidth = full ? 3 : 4;
+    ctx.strokeStyle = full ? '#cfe0f1' : '#a9c3dd';
+    ctx.stroke();
+    ctx.fillStyle = '#f3f7fb';
+    ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(c.spire), cx, cy + 2);
+    return;
+  }
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   if (full) {
     ctx.fillStyle = 'rgba(10,9,7,.6)';
@@ -279,7 +314,13 @@ function drawCost(ctx, c, cx, cy, full) {
 function drawName(ctx, c, left, right, cy, full) {
   const size = Number(nameSizeEm(c.name, full)) * EM;
   ctx.font = `600 ${size}px ${CARD_THEME.fontTitle}`;
-  ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
+  if (cardKind(c) === 'legend') {
+    const g = ctx.createLinearGradient(left, 0, right, 0);
+    ['#fff6d6', '#ffd1e8', '#c9e8ff', '#fff6d6'].forEach((col, i) => g.addColorStop(i / 3, col));
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = full ? '#fbf3df' : '#f6ecd2';
+  }
   ctx.textBaseline = 'middle';
   ctx.textAlign = full ? 'left' : 'center';
   ctx.shadowColor = 'rgba(0,0,0,.85)';
@@ -297,13 +338,21 @@ function drawName(ctx, c, left, right, cy, full) {
 function drawTypeLine(ctx, c, x, cy, right, colors, full) {
   const typeSt = normalizeFontStyle(c.typeStyle, DEFAULT_TYPE_STYLE);
   const subSt = normalizeFontStyle(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE);
+  const kind = cardKind(c);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
+  let start = x;
+  if (kind === 'drawing') {
+    const q = typeSt.fontSize * 2 * 1.1;
+    strokeIcon(ctx, QUILL_ICON, x + q / 2, cy, q, colors.type, 2.2);
+    start = x + q + 8;
+  }
   ctx.letterSpacing = '1.5px';
   ctx.font = `${typeSt.italic ? 'italic ' : ''}${typeSt.bold ? 700 : 500} ${typeSt.fontSize * 2}px ${CARD_THEME.fontCaps}`;
-  ctx.fillStyle = colors.type;
-  ctx.fillText(c.type, x, cy);
-  let cursor = x + ctx.measureText(c.type).width;
+  const typeW = ctx.measureText(c.type).width;
+  ctx.fillStyle = kind === 'legend' && full ? prismGradient(ctx, start, start + typeW) : colors.type;
+  ctx.fillText(c.type, start, cy);
+  let cursor = start + typeW;
   if (c.subtype) {
     ctx.font = `${subSt.italic ? 'italic ' : ''}${subSt.bold ? 700 : 500} ${subSt.fontSize * 2}px ${CARD_THEME.fontCaps}`;
     ctx.fillStyle = colors.subtype;
@@ -315,9 +364,14 @@ function drawTypeLine(ctx, c, x, cy, right, colors, full) {
   const d = 9;   // losange de rareté
   const rx = right - d;
   if (full && cursor + 16 < rx - d - 8) {
-    const line = ctx.createLinearGradient(cursor + 12, 0, rx - d - 8, 0);
-    line.addColorStop(0, colors.subtype);
-    line.addColorStop(1, 'rgba(255,255,255,0)');
+    let line;
+    if (kind === 'legend') {
+      line = prismGradient(ctx, cursor + 12, rx - d - 8, true);
+    } else {
+      line = ctx.createLinearGradient(cursor + 12, 0, rx - d - 8, 0);
+      line.addColorStop(0, colors.subtype);
+      line.addColorStop(1, 'rgba(255,255,255,0)');
+    }
     ctx.fillStyle = line;
     ctx.fillRect(cursor + 12, cy - 1, rx - d - 8 - cursor - 12, 2);
   }
@@ -401,6 +455,7 @@ async function renderCardJpeg(c, lowInk = false) {
   const ctx = canvas.getContext('2d');
   const pal = cardPalette(c);
   const isHero = isHeroCard(c);
+  const kind = cardKind(c);
   const showCost = c.showSpire !== false;
   const full = !!c.fullArt;
   const outerRadius = 30;
@@ -428,7 +483,12 @@ async function renderCardJpeg(c, lowInk = false) {
     ctx.fillRect(0, H * 0.47, W, H * 0.53);
     roundRect(ctx, 14, 14, W - 28, H - 28, 20);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = isHero ? 'rgba(232,212,156,.85)' : 'rgba(232,212,156,.35)';
+    if (kind === 'legend') {
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'rgba(255,255,255,.85)';
+    } else {
+      ctx.strokeStyle = isHero ? 'rgba(232,212,156,.85)' : 'rgba(232,212,156,.35)';
+    }
     ctx.stroke();
 
     const headY = 0.5 * EM + 1.8125 * EM;
@@ -448,7 +508,8 @@ async function renderCardJpeg(c, lowInk = false) {
     const rulesX = 1.125 * EM;
     const rulesTop = H - 2.75 * EM - 9.375 * EM;
     const typeY = rulesTop + 0.45 * EM;
-    drawTypeLine(ctx, c, rulesX, typeY, W - rulesX, { type: pal.light, subtype: pal.light }, true);
+    const fullTypeColor = kind === 'drawing' ? '#cfe0f1' : pal.light;
+    drawTypeLine(ctx, c, rulesX, typeY, W - rulesX, { type: fullTypeColor, subtype: pal.light }, true);
     const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
@@ -475,6 +536,10 @@ async function renderCardJpeg(c, lowInk = false) {
       gold.addColorStop(0.55, '#8a6a2f');
       gold.addColorStop(1, '#c9a45c');
       ctx.fillStyle = gold;
+    } else if (kind === 'legend') {
+      const prism = ctx.createConicGradient((210 - 90) * Math.PI / 180, W / 2, H / 2);
+      ['#ffd1e8', '#c9b6ff', '#a8e6ff', '#b8ffd9', '#fff2a8', '#ffc9a8', '#ffd1e8'].forEach((col, i) => prism.addColorStop(i / 6, col));
+      ctx.fillStyle = prism;
     } else {
       ctx.fillStyle = CARD_THEME.ink;
     }
@@ -520,13 +585,49 @@ async function renderCardJpeg(c, lowInk = false) {
     // Ligne de Type
     const typeTop = by + artH;
     const typeH = 1.625 * EM;
-    ctx.fillStyle = pal.tint;
-    ctx.fillRect(bx, typeTop, bw, typeH);
-    ctx.fillStyle = pal.el;
-    ctx.fillRect(bx, typeTop, bw, 4);
-    ctx.fillStyle = '#b89a5e';
-    ctx.fillRect(bx, typeTop + typeH - 2, bw, 2);
-    drawTypeLine(ctx, c, bx + 0.75 * EM, typeTop + typeH / 2 + 1, bx + bw - 0.75 * EM, { type: '#2a2117', subtype: '#5a4a35' }, false);
+    let typeColors = { type: '#2a2117', subtype: '#5a4a35' };
+    let typeInset = 0;
+    if (kind === 'legend') {
+      // Plaque d'encre sertie d'un liseré irisé, sur le parchemin.
+      ctx.fillStyle = pal.tint;
+      ctx.fillRect(bx, typeTop, bw, typeH);
+      typeInset = 0.35 * EM;
+      const px = bx + typeInset;
+      const pw = bw - 2 * typeInset;
+      const py = typeTop + 0.1 * EM;
+      const ph = typeH - 0.2 * EM;
+      roundRect(ctx, px, py, pw, ph, 0.4 * EM);
+      ctx.fillStyle = prismGradient(ctx, px, px + pw);
+      ctx.fill();
+      const b = 0.13 * EM;
+      roundRect(ctx, px + b, py + b, pw - 2 * b, ph - 2 * b, 0.4 * EM - b);
+      const ink = ctx.createLinearGradient(0, py, 0, py + ph);
+      ink.addColorStop(0, '#2e2540');
+      ink.addColorStop(1, '#1b1626');
+      ctx.fillStyle = ink;
+      ctx.fill();
+      typeColors = { type: '#fff6e6', subtype: '#d9cfff' };
+    } else if (kind === 'drawing') {
+      const band = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+      band.addColorStop(0, '#1d2c3d');
+      band.addColorStop(0.6, '#2c4259');
+      band.addColorStop(1, '#3a5672');
+      ctx.fillStyle = band;
+      ctx.fillRect(bx, typeTop, bw, typeH);
+      ctx.fillStyle = '#a9c3dd';
+      ctx.fillRect(bx, typeTop, bw, 4);
+      ctx.fillStyle = '#b89a5e';
+      ctx.fillRect(bx, typeTop + typeH - 2, bw, 2);
+      typeColors = { type: '#e6eef7', subtype: '#b9cde0' };
+    } else {
+      ctx.fillStyle = pal.tint;
+      ctx.fillRect(bx, typeTop, bw, typeH);
+      ctx.fillStyle = pal.el;
+      ctx.fillRect(bx, typeTop, bw, 4);
+      ctx.fillStyle = '#b89a5e';
+      ctx.fillRect(bx, typeTop + typeH - 2, bw, 2);
+    }
+    drawTypeLine(ctx, c, bx + 0.75 * EM + typeInset * 0.6, typeTop + typeH / 2 + 1, bx + bw - 0.75 * EM - typeInset * 0.6, typeColors, false);
 
     // Texte et pied
     const footH = 2 * EM;
@@ -553,7 +654,7 @@ async function renderCardJpeg(c, lowInk = false) {
     ctx.restore();
     roundRect(ctx, bx + 1, by + 1, bw - 2, bh - 2, 20);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = isHero ? '#fff3cf' : CARD_THEME.gold;
+    ctx.strokeStyle = isHero ? '#fff3cf' : kind === 'legend' ? '#ffffff' : CARD_THEME.gold;
     ctx.stroke();
   }
   ctx.restore();
