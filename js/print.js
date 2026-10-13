@@ -265,7 +265,8 @@ function drawCost(ctx, c, cx, cy, full) {
   const r = 1.125 * EM;   // diamètre 2,25 em
   ctx.beginPath();
   if (cardKind(c) === 'drawing') {
-    // Dessin : losange d'encre bleue.
+    // Dessin : losange à l'encre de l'élément.
+    const pal = cardPalette(c);
     const d = 1.38 * EM;
     ctx.moveTo(cx, cy - d);
     ctx.lineTo(cx + d, cy);
@@ -273,16 +274,16 @@ function drawCost(ctx, c, cx, cy, full) {
     ctx.lineTo(cx - d, cy);
     ctx.closePath();
     if (full) {
-      ctx.fillStyle = 'rgba(10,20,32,.65)';
+      ctx.fillStyle = 'rgba(14,12,10,.6)';
     } else {
       const g = ctx.createRadialGradient(cx - d * 0.3, cy - d * 0.4, 1, cx, cy, d);
-      g.addColorStop(0, '#34506e');
-      g.addColorStop(0.75, '#0f1a28');
+      g.addColorStop(0, pal.inkMid);
+      g.addColorStop(0.75, pal.inkDark);
       ctx.fillStyle = g;
     }
     ctx.fill();
     ctx.lineWidth = full ? 3 : 4;
-    ctx.strokeStyle = full ? '#cfe0f1' : '#a9c3dd';
+    ctx.strokeStyle = pal.light;
     ctx.stroke();
     ctx.fillStyle = '#f3f7fb';
     ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
@@ -508,7 +509,7 @@ async function renderCardJpeg(c, lowInk = false) {
     const rulesX = 1.125 * EM;
     const rulesTop = H - 2.75 * EM - 9.375 * EM;
     const typeY = rulesTop + 0.45 * EM;
-    const fullTypeColor = kind === 'drawing' ? '#cfe0f1' : pal.light;
+    const fullTypeColor = pal.light;
     drawTypeLine(ctx, c, rulesX, typeY, W - rulesX, { type: fullTypeColor, subtype: pal.light }, true);
     const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
     ctx.textAlign = 'left';
@@ -609,16 +610,16 @@ async function renderCardJpeg(c, lowInk = false) {
       typeColors = { type: '#fff6e6', subtype: '#d9cfff' };
     } else if (kind === 'drawing') {
       const band = ctx.createLinearGradient(bx, 0, bx + bw, 0);
-      band.addColorStop(0, '#1d2c3d');
-      band.addColorStop(0.6, '#2c4259');
-      band.addColorStop(1, '#3a5672');
+      band.addColorStop(0, pal.inkDark);
+      band.addColorStop(0.6, pal.inkMid);
+      band.addColorStop(1, pal.inkLight);
       ctx.fillStyle = band;
       ctx.fillRect(bx, typeTop, bw, typeH);
-      ctx.fillStyle = '#a9c3dd';
+      ctx.fillStyle = pal.light;
       ctx.fillRect(bx, typeTop, bw, 4);
       ctx.fillStyle = '#b89a5e';
       ctx.fillRect(bx, typeTop + typeH - 2, bw, 2);
-      typeColors = { type: '#e6eef7', subtype: '#b9cde0' };
+      typeColors = { type: '#f6f1e8', subtype: pal.pale };
     } else {
       ctx.fillStyle = pal.tint;
       ctx.fillRect(bx, typeTop, bw, typeH);

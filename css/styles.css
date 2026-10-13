@@ -1400,12 +1400,12 @@ body.draggingCard * {
   top: 4.43em;
 }
 
-/* ---------- Dessins : coût en losange d'encre et plume sur la ligne de type ---------- */
+/* ---------- Dessins : coût en losange et bandeau de type à l'encre de l'élément ---------- */
 
 .gw--drawing .gw-cost {
   border-radius: .25em;
-  border-color: #a9c3dd;
-  background: radial-gradient(circle at 35% 30%,#34506e,#0f1a28 75%);
+  border-color: var(--el-light);
+  background: radial-gradient(circle at 35% 30%,var(--ink-mid),var(--ink-dark) 75%);
   transform: rotate(45deg) scale(.9);
 }
 
@@ -1415,14 +1415,14 @@ body.draggingCard * {
 }
 
 .gw--drawing .gw-type {
-  border-top-color: #a9c3dd;
-  background: linear-gradient(90deg,#1d2c3d,#2c4259 60%,#3a5672);
-  color: #e6eef7;
+  border-top-color: var(--el-light);
+  background: linear-gradient(90deg,var(--ink-dark),var(--ink-mid) 60%,var(--ink-light));
+  color: #f6f1e8;
 }
 
 .gw--drawing .gw-subtype,
 .gw--drawing .gw-sep {
-  color: #b9cde0;
+  color: var(--el-pale);
 }
 
 .gw-quill {
@@ -1437,13 +1437,13 @@ body.draggingCard * {
 }
 
 .gw--drawing.gw--full .gw-cost {
-  border-color: #cfe0f1;
-  background: rgba(10,20,32,.65);
+  border-color: var(--el-light);
+  background: rgba(14,12,10,.6);
 }
 
 .gw--drawing.gw--full .gw-type {
   background: none;
-  color: #cfe0f1;
+  color: var(--el-light);
 }
 
 /* ---------- Dessins légendaires : cadre prismatique ---------- */
