@@ -12,6 +12,7 @@ function cardsChanged() {
   renderDeck();
   renderStudio();
   renderTrash();
+  renderShare();
 }
 
 async function initApp() {

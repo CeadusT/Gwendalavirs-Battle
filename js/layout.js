@@ -7,7 +7,7 @@
 const deckView = $('#deckView');
 const studioView = $('#studioView');
 const trashView = $('#trashView');
-let currentView = 'deck';   // 'deck' | 'studio' | 'trash'
+let currentView = 'deck';   // 'deck' | 'studio' | 'share' | 'trash'
 
 /* ---------- Onglets ---------- */
 
@@ -17,9 +17,11 @@ function setView(mode) {
   deckView.classList.toggle('hidden', mode !== 'deck');
   studioView.classList.toggle('hidden', mode !== 'studio');
   trashView.classList.toggle('hidden', mode !== 'trash');
+  $('#shareView').classList.toggle('hidden', mode !== 'share');
   $('#tabDeck').classList.toggle('active', mode === 'deck');
   $('#tabStudio').classList.toggle('active', mode === 'studio');
   $('#tabTrash').classList.toggle('active', mode === 'trash');
+  $('#tabShare').classList.toggle('active', mode === 'share');
   $('#showFilters').classList.toggle('hidden', mode !== 'deck');
   $('#showDeck').classList.toggle('hidden', mode !== 'deck');
   if (mode === 'deck') {
@@ -29,6 +31,8 @@ function setView(mode) {
   } else if (mode === 'studio') {
     applyStudioPanels();
     renderStudio();
+  } else if (mode === 'share') {
+    renderShare();
   } else {
     renderTrash();
   }
@@ -42,6 +46,7 @@ $('#tabDeck').onclick = () => setView('deck');
 $('#tabStudio').onclick = () => setView('studio');
 $('#tabDecks').onclick = openDecksModal;
 $('#tabTrash').onclick = () => setView('trash');
+$('#tabShare').onclick = () => setView('share');
 
 /* ---------- Panneaux latéraux du Deckbuilder ---------- */
 

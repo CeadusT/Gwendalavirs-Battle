@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=2.7">
+<link rel="stylesheet" href="css/styles.css?v=2.8">
 </head>
 <body>
 <div class="app">
@@ -17,7 +17,7 @@
   <!-- ===================== En-tête ===================== -->
   <div class="top">
     <div class="brand"><b>Gwendalavir's</b> Battle<small>Deckbuilder web · Version <span data-app-version></span></small></div>
-    <div class="tabs"><button id="tabDeck" class="active">Deckbuilder</button><button id="tabStudio">Card Studio</button><button id="tabDecks">Mes decks</button><button id="tabTrash">Corbeille <span class="trashBadge hidden" id="trashBadge">0</span></button></div>
+    <div class="tabs"><button id="tabDeck" class="active">Deckbuilder</button><button id="tabStudio">Card Studio</button><button id="tabDecks">Mes decks</button><button id="tabShare" title="Rassembler des cartes pour les exporter (tu peux aussi y glisser une carte de la bibliothèque)">Partage <span class="trashBadge shareBadge hidden" id="shareBadge">0</span></button><button id="tabTrash">Corbeille <span class="trashBadge hidden" id="trashBadge">0</span></button></div>
     <div class="version">V<span data-app-version></span></div>
   </div>
 
@@ -219,7 +219,7 @@
       <div class="studioPreviewStage" id="studioPreviewStage"><article class="card studioLiveCard" id="liveCard"></article></div>
       <div class="studioPreviewFoot">
         <div class="zoneLegend">Clique sur le nom ou le texte pour les modifier directement. Survole une zone pour retrouver son réglage.</div>
-        <div class="studioActionBar"><button class="secondary" id="resetCard" type="button">Nouvelle carte</button><button class="primary" id="saveCard" type="button">Sauvegarder</button></div>
+        <div class="studioActionBar"><button class="secondary" id="resetCard" type="button">Nouvelle carte</button><button class="secondary" id="shareStudioCard" type="button" title="Sauvegarde la carte et l’ajoute à l’onglet Partage">Envoyer vers Partage</button><button class="primary" id="saveCard" type="button">Sauvegarder</button></div>
       </div>
     </section>
 
@@ -250,6 +250,15 @@
 
   <button class="restoreSide left studioRestore" id="showStudioEditor" title="Réafficher l'éditeur"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M9 4v16M12 9h5M12 13h5"/></svg></button>
   <button class="restoreSide right studioRestore" id="showStudioList" title="Réafficher les cartes créées / modifiées"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M15 4v16M7 9h5M7 13h5"/></svg></button>
+
+  <!-- ===================== Partage ===================== -->
+  <div class="shareView hidden" id="shareView">
+    <div class="trashHead"><div><span class="eyebrow">PARTAGE</span><h1>Partager des cartes</h1><p>Glisse des cartes dans la zone de droite (ou clique dessus), puis exporte-les en JSON. L’autre joueur importe le fichier avec « Importer JSON » dans son Card Studio. Tu peux aussi glisser une carte de la bibliothèque du Deckbuilder sur l’onglet « Partage ».</p></div><div class="trashHeadActions"><button class="secondary" id="clearShare" type="button">Vider</button><button class="primary" id="exportShare" type="button">Exporter JSON</button><span class="count" id="shareCount">Aucune carte</span></div></div>
+    <div class="shareBody">
+      <section class="sharePick"><input id="shareSearch" type="search" placeholder="Rechercher une carte…" aria-label="Rechercher une carte"><div class="shareLibrary" id="shareLibrary"></div></section>
+      <section class="shareDrop isEmpty" id="shareDrop"><div class="shareDropHint">Glisse des cartes ici</div><div class="shareList" id="shareList"></div></section>
+    </div>
+  </div>
 
   <!-- ===================== Corbeille ===================== -->
   <div class="trashView hidden" id="trashView">
@@ -290,17 +299,18 @@
 </div>
 
 <!-- Scripts : l'ordre compte (chaque fichier utilise ceux chargés avant lui). -->
-<script src="js/data.js?v=2.7"></script>
-<script src="js/utils.js?v=2.7"></script>
-<script src="js/storage.js?v=2.7"></script>
-<script src="js/cards.js?v=2.7"></script>
-<script src="js/library.js?v=2.7"></script>
-<script src="js/deck.js?v=2.7"></script>
-<script src="js/studio.js?v=2.7"></script>
-<script src="js/trash.js?v=2.7"></script>
-<script src="js/transfer.js?v=2.7"></script>
-<script src="js/print.js?v=2.7"></script>
-<script src="js/layout.js?v=2.7"></script>
-<script src="js/main.js?v=2.7"></script>
+<script src="js/data.js?v=2.8"></script>
+<script src="js/utils.js?v=2.8"></script>
+<script src="js/storage.js?v=2.8"></script>
+<script src="js/cards.js?v=2.8"></script>
+<script src="js/library.js?v=2.8"></script>
+<script src="js/deck.js?v=2.8"></script>
+<script src="js/studio.js?v=2.8"></script>
+<script src="js/trash.js?v=2.8"></script>
+<script src="js/transfer.js?v=2.8"></script>
+<script src="js/print.js?v=2.8"></script>
+<script src="js/layout.js?v=2.8"></script>
+<script src="js/share.js?v=2.8"></script>
+<script src="js/main.js?v=2.8"></script>
 </body>
 </html>

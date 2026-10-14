@@ -1,6 +1,6 @@
 # Gwendalavir's Battle — Deckbuilder
 
-Deckbuilder web de **Gwendalavir's Battle** (version 2.7) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
+Deckbuilder web de **Gwendalavir's Battle** (version 2.8) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
 
 Le site est **100 % statique** (HTML, CSS, JavaScript) : aucune installation, aucun serveur, aucune dépendance.
 
@@ -38,6 +38,7 @@ js/
   trash.js            Corbeille
   transfer.js         Import / export JSON et import Excel
   print.js            Dessin des cartes, export PDF et Tabletop Simulator
+  share.js            Onglet Partage : sélection de cartes et export JSON ciblé
   layout.js           Onglets, panneaux masquables, séparateurs, zoom Ctrl + molette
   main.js             Démarrage
 assets/               Icône, modèle Excel d'import et polices des cartes (assets/fonts, licence SIL OFL)
@@ -77,6 +78,7 @@ Polices : Cinzel (noms, coût, statistiques), Alegreya (texte), Alegreya Sans SC
 - **Exports PDF / TTS** : ils suivent l'ordre du deck affiché à l'écran.
 - **Export « Logiciel de jeu (.json) »** : fichier deck (format `gwendalavirs-battle-deck`) à importer dans le logiciel de jeu ; chaque carte y est copiée en entier.
 - **Dessins et Dessins légendaires** : un Dessin a un coût en losange et une plume sur un bandeau, à l’encre de son élément (couleur de l’élément, foncée) ; un Dessin légendaire a un cadre prismatique (reflet animé, nom nacré), une plaque de type sertie d’un liseré irisé en style normal, un type irisé en full art. Même rendu dans les exports PDF et TTS.
+- **Onglet Partage** : rassemble des cartes (glisser-déposer, clic, glisser une carte de la bibliothèque sur l’onglet, ou bouton « Envoyer vers Partage » du Card Studio) et les exporte en JSON au format bibliothèque ; l’autre joueur les importe avec « Importer JSON ». La sélection est conservée (`gwb.shareList`).
 - **Carte unique** : case dans le Card Studio (et colonne `Unique (1/0)` de l’import Excel). Le logiciel de jeu interdit alors d’avoir deux exemplaires de la carte en même temps sur le terrain.
 - **Import Excel** : il accepte les variantes de saisie (« Commune », apostrophe typographique ’…). Les exemples du modèle fourni sont désormais acceptés.
 - **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Plante, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
