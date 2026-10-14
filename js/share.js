@@ -68,13 +68,15 @@ function renderShare() {
 /* ---------- Glisser-déposer ---------- */
 
 let shareDragId = null;
+let shareDragFromList = false;   // la carte vient de la zone de droite (cartes à partager)
 
 function shareDragStart(e) {
   const el = e.target.closest('.card[data-id]');
   if (!el) return;
   shareDragId = el.dataset.id;
+  shareDragFromList = shareList.contains(el);
   hideHoverPreview();
-  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.effectAllowed = 'copyMove';
   e.dataTransfer.setData('text/plain', shareDragId);
 }
 
@@ -82,7 +84,9 @@ shareLibrary.addEventListener('dragstart', shareDragStart);
 shareList.addEventListener('dragstart', shareDragStart);
 document.addEventListener('dragend', () => {
   shareDragId = null;
+  shareDragFromList = false;
   shareDrop.classList.remove('isOver');
+  sharePick.classList.remove('isOver');
   $('#tabShare').classList.remove('isOver');
 });
 
@@ -104,6 +108,24 @@ shareDrop.addEventListener('drop', e => {
   e.preventDefault();
   shareDrop.classList.remove('isOver');
   addToShare(id);
+});
+
+/* Glisser une carte de la zone de droite vers la gauche la retire du partage. */
+const sharePick = $('.sharePick');
+sharePick.addEventListener('dragover', e => {
+  if (!shareDragFromList) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  sharePick.classList.add('isOver');
+});
+sharePick.addEventListener('dragleave', e => {
+  if (!sharePick.contains(e.relatedTarget)) sharePick.classList.remove('isOver');
+});
+sharePick.addEventListener('drop', e => {
+  if (!shareDragFromList || !shareDragId) return;
+  e.preventDefault();
+  sharePick.classList.remove('isOver');
+  removeFromShare(shareDragId);
 });
 
 /* Depuis le Deckbuilder : déposer une carte de la bibliothèque sur l'onglet « Partage ». */

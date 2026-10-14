@@ -5,7 +5,7 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '2.8';
+const APP_VERSION = '2.9';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';

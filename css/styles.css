@@ -3369,6 +3369,12 @@ body.draggingCard * {
   transition: border-color .12s, background .12s;
 }
 
+.sharePick.isOver {
+  outline: 2px dashed #d0604f;
+  outline-offset: -2px;
+  background: #1f1514;
+}
+
 .shareDrop.isOver {
   border-color: #f0c766;
   background: #1c1a14;
