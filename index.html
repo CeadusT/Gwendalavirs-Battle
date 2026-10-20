@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=2.9">
+<link rel="stylesheet" href="css/styles.css?v=2.10">
 </head>
 <body>
 <div class="app">
@@ -137,7 +137,7 @@
           <h2 class="studioSectionTitle">Coût et statistiques</h2>
           <div class="statGrid">
             <div class="statCell" data-field="spire">
-              <label class="label" for="studioSpire">Volonté</label>
+              <label class="label" for="studioSpire"><i class="emblemDot emblemDot--will"></i>Volonté</label>
               <select id="studioSpire"></select>
               <label class="showToggle"><input id="studioShowSpire" type="checkbox" checked><span>Afficher</span></label>
             </div>
@@ -150,6 +150,16 @@
               <label class="label" for="studioHealth">Points de vie</label>
               <input id="studioHealth" type="number" min="0" max="999" value="0">
               <label class="showToggle"><input id="studioShowHealth" type="checkbox"><span>Afficher</span></label>
+            </div>
+          </div>
+          <div class="statGrid drawingStats hidden" id="drawingStats" title="Valeurs du blason des Dessins (cercles bleu et jaune)">
+            <div class="statCell" data-field="spire">
+              <label class="label" for="studioCreativity"><i class="emblemDot emblemDot--creativity"></i>Créativité</label>
+              <select id="studioCreativity"></select>
+            </div>
+            <div class="statCell" data-field="spire">
+              <label class="label" for="studioPower"><i class="emblemDot emblemDot--power"></i>Pouvoir</label>
+              <select id="studioPower"></select>
             </div>
           </div>
           <label class="showToggle uniqueToggle" data-field="unique" title="Un seul exemplaire à la fois sur le terrain de son propriétaire (règle appliquée par le logiciel de jeu)"><input id="studioUnique" type="checkbox"><span>Carte unique : un seul exemplaire à la fois en jeu</span></label>
@@ -299,18 +309,18 @@
 </div>
 
 <!-- Scripts : l'ordre compte (chaque fichier utilise ceux chargés avant lui). -->
-<script src="js/data.js?v=2.9"></script>
-<script src="js/utils.js?v=2.9"></script>
-<script src="js/storage.js?v=2.9"></script>
-<script src="js/cards.js?v=2.9"></script>
-<script src="js/library.js?v=2.9"></script>
-<script src="js/deck.js?v=2.9"></script>
-<script src="js/studio.js?v=2.9"></script>
-<script src="js/trash.js?v=2.9"></script>
-<script src="js/transfer.js?v=2.9"></script>
-<script src="js/print.js?v=2.9"></script>
-<script src="js/layout.js?v=2.9"></script>
-<script src="js/share.js?v=2.9"></script>
-<script src="js/main.js?v=2.9"></script>
+<script src="js/data.js?v=2.10"></script>
+<script src="js/utils.js?v=2.10"></script>
+<script src="js/storage.js?v=2.10"></script>
+<script src="js/cards.js?v=2.10"></script>
+<script src="js/library.js?v=2.10"></script>
+<script src="js/deck.js?v=2.10"></script>
+<script src="js/studio.js?v=2.10"></script>
+<script src="js/trash.js?v=2.10"></script>
+<script src="js/transfer.js?v=2.10"></script>
+<script src="js/print.js?v=2.10"></script>
+<script src="js/layout.js?v=2.10"></script>
+<script src="js/share.js?v=2.10"></script>
+<script src="js/main.js?v=2.10"></script>
 </body>
 </html>

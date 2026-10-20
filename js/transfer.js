@@ -27,7 +27,7 @@ $('#exportLibrary').onclick = () => {
 
 /* Liste légère : toutes les cartes visibles, sans illustrations ni mise en forme. */
 $('#exportCardList').onclick = () => {
-  const fields = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'text'];
+  const fields = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'creativity', 'power', 'text'];
   const list = cards.map(c => Object.fromEntries(fields.map(k => [k, k === 'text' ? plainText(c.text) : c[k]])));
   const pack = { format: 'gwendalavirs-battle-card-list', version: 1, exportedAt: new Date().toISOString(), count: list.length, cards: list };
   downloadBlob(new Blob([JSON.stringify(pack)], { type: 'application/json' }), `Gwendalavirs-Battle-Cartes-${new Date().toISOString().slice(0, 10)}.json`);
@@ -295,6 +295,8 @@ function cardFromExcel(row, headers, line, embeddedImages) {
     deckLimitOverride: Math.max(0, excelNumber(get('Limite spéciale', 'Limite speciale'), 0)) || null,
     fullArt: excelBool(get('Full art (1/0)', 'Full art'), false),
     unique: excelBool(get('Unique (1/0)', 'Unique'), false),
+    creativity: Math.max(0, excelNumber(get('Créativité', 'Creativite'), 0)),
+    power: Math.max(0, excelNumber(get('Pouvoir'), 0)),
     textStyle: { fontSize: excelNumber(get('Taille texte'), DEFAULT_TEXT_STYLE.fontSize) },
     typeStyle: {
       fontSize: excelNumber(get('Taille Type', 'Taille Tribal'), DEFAULT_TYPE_STYLE.fontSize),

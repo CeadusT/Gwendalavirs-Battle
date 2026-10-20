@@ -1,6 +1,6 @@
 # Gwendalavir's Battle — Deckbuilder
 
-Deckbuilder web de **Gwendalavir's Battle** (version 2.9) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
+Deckbuilder web de **Gwendalavir's Battle** (version 2.10) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
 
 Le site est **100 % statique** (HTML, CSS, JavaScript) : aucune installation, aucun serveur, aucune dépendance.
 

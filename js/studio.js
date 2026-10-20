@@ -11,6 +11,8 @@ const sSubtype = $('#studioSubtype');
 const sSet = $('#studioSet');
 const sSpire = $('#studioSpire');
 const sShowSpire = $('#studioShowSpire');
+const sCreativity = $('#studioCreativity');
+const sPower = $('#studioPower');
 const sAttack = $('#studioAttack');
 const sHealth = $('#studioHealth');
 const sShowAttack = $('#studioShowAttack');
@@ -53,6 +55,9 @@ Object.defineProperty(sText, 'value', {
 function buildStudioControls() {
   sColor.innerHTML = COLOR_NAMES.map(name => `<option>${name}</option>`).join('');
   sSpire.innerHTML = Array.from({ length: MAX_SPIRE - MIN_SPIRE + 1 }, (_, i) => `<option>${MIN_SPIRE + i}</option>`).join('');
+  const emblemOptions = Array.from({ length: EMBLEM.max + 1 }, (_, i) => `<option>${i}</option>`).join('');
+  sCreativity.innerHTML = emblemOptions;
+  sPower.innerHTML = emblemOptions;
   textColorPalette.innerHTML = TEXT_COLORS.map(({ hex, name }) => `<button type="button" class="textColorSwatch" data-text-color="${hex}" style="--swatch: ${hex}" title="${name}" aria-label="Texte ${name.toLowerCase()}"></button>`).join('');
   $('#studioElementPicker').innerHTML = COLOR_NAMES.map(name => `<button type="button" class="elementChoice" role="radio" aria-checked="false" data-color="${name}" style="--el:${COLORS[name].hex}" title="${name} · ${COLORS[name].element}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[name].icon}"/></svg><span>${COLORS[name].element}</span></button>`).join('');
 }
@@ -100,6 +105,8 @@ function studioCardData() {
     name: sName.value.trim(),
     spire: sSpire.value,
     showSpire: sShowSpire.checked,
+    creativity: sCreativity.value,
+    power: sPower.value,
     type: sType.value || 'Carte',
     subtype: sSubtype.value,
     color: sColor.value,
@@ -121,6 +128,8 @@ function studioCardData() {
 }
 
 function renderLive() {
+  // Créativité et Pouvoir ne concernent que les Dessins (blason à trois cercles).
+  $('#drawingStats').classList.toggle('hidden', !cardKind({ type: sType.value }));
   const data = studioCardData();
   const preview = { ...data, name: sName.value || PREVIEW_NAME, text: data.text || PREVIEW_TEXT };
   liveCard.innerHTML = cardMarkup(preview, { studio: true });
@@ -131,7 +140,7 @@ function renderLive() {
   applySpellLanguageTo($$('[contenteditable]', liveCard));
 }
 
-for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride, sUnique]) {
+for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride, sUnique, sCreativity, sPower]) {
   input.addEventListener('input', () => {
     if (input === sType || input === sSubtype) syncTaxonomyDeleteButtons();
     renderLive();
@@ -653,6 +662,8 @@ function fillStudioForm(c) {
   sSet.value = c?.set || SETS[0];
   sSpire.value = String(c?.spire ?? 0);
   sShowSpire.checked = c ? c.showSpire !== false : true;
+  sCreativity.value = String(c?.creativity ?? 0);
+  sPower.value = String(c?.power ?? 0);
   sAttack.value = String(c?.attack ?? 0);
   sHealth.value = String(c?.health ?? 0);
   sShowAttack.checked = !!c?.showAttack;

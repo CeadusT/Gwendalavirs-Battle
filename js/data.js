@@ -5,12 +5,15 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '2.9';
+const APP_VERSION = '2.10';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';
 const RARITIES = ['Commun', 'Rare', 'Légendaire'];
 const SETS = ["D'un monde à l'autre", 'Le pacte des Marchombre', "La revanche des Ts'lich"];
+
+/* Blason des Dessins : Volonté (rouge, = le coût), Créativité (bleu), Pouvoir (jaune). */
+const EMBLEM = { will: '#c8372d', creativity: '#2f5fc4', power: '#e3b31f', gold: '#d8b25a', ink: '#15110c', max: 9 };
 
 const MIN_SPIRE = 0;
 const MAX_SPIRE = 6;
