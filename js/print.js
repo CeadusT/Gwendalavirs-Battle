@@ -507,9 +507,8 @@ async function renderCardJpeg(c, lowInk = false) {
     const headY = 0.5 * EM + 1.8125 * EM;
     const padX = EM;
     const emblem = showCost && kind;
-    if (emblem) drawEmblem(ctx, c, 0.7 * EM, 1.2 * EM, 4.3 * EM);
-    else if (showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
-    const nameLeft = emblem ? 5.4 * EM : padX + (showCost ? 2.25 * EM + 0.5 * EM : 0);
+    if (!emblem && showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
+    const nameLeft = padX + (showCost && !emblem ? 2.25 * EM + 0.5 * EM : 0);
     const nameRight = W - padX - (isHero ? 0 : 2.125 * EM + 0.5 * EM);
     drawName(ctx, c, nameLeft, nameRight, headY, true);
     if (!isHero) {
@@ -583,10 +582,9 @@ async function renderCardJpeg(c, lowInk = false) {
     const padX = 0.5625 * EM;
     const emblem = showCost && kind;
     if (!emblem && showCost) drawCost(ctx, c, bx + padX + 1.125 * EM, headY, false);
-    const nameLeft = emblem ? bx + 4.9 * EM : bx + padX + (showCost ? 2.25 * EM : 0) + 0.5 * EM;
+    const nameLeft = bx + padX + (showCost && !emblem ? 2.25 * EM : 0) + 0.5 * EM;
     const nameRight = bx + bw - padX - (isHero ? 0 : 2.125 * EM) - 0.5 * EM;
     drawName(ctx, c, nameLeft, nameRight, headY, false);
-    if (emblem) drawEmblem(ctx, c, bx + 0.3 * EM, by + 0.3 * EM, 4.3 * EM);
     if (!isHero) {
       const ex = bx + bw - padX - 1.0625 * EM;
       ctx.beginPath();
@@ -673,6 +671,11 @@ async function renderCardJpeg(c, lowInk = false) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = isHero ? '#fff3cf' : kind === 'legend' ? '#ffffff' : CARD_THEME.gold;
     ctx.stroke();
+  }
+  // Blason des Dessins : en bas à gauche de l'illustration (mêmes cotes que .gw-emblem).
+  if (showCost && kind) {
+    const full = c.fullArt === true;
+    drawEmblem(ctx, c, (full ? 0.7 : 0.95) * EM, H - (full ? 12.475 : 11.95) * EM - 4.3 * EM, 4.3 * EM);
   }
   ctx.restore();
 

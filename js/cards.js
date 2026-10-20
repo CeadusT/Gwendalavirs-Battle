@@ -322,9 +322,8 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const copies = quick ? deckCopies(c) : 0;
   const deckCount = copies ? `<span class="libraryDeckCount" title="${copies} exemplaire${copies > 1 ? 's' : ''} dans le deck">×${copies}</span>` : '';
 
-  const cost = !showCost ? ''
-    : kind ? `<div class="gw-emblem"${zone('spire')} title="Volonté ${c.spire} · Créativité ${c.creativity} · Pouvoir ${c.power}">${emblemSvg(c)}</div>`
-      : `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>`;
+  const cost = showCost && !kind ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
+  const emblem = showCost && kind ? `<div class="gw-emblem"${zone('spire')} title="Volonté ${c.spire} · Créativité ${c.creativity} · Pouvoir ${c.power}">${emblemSvg(c)}</div>` : '';
   const quill = kind === 'drawing' ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><path d="${QUILL_ICON}"/></svg>` : '';
   const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
@@ -339,7 +338,7 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
 
   return actions
     + `<div class="${variant}" style="${vars}"><div class="gw-body">`
-    + `<div class="gw-art"${zone('image')}${backgroundImageStyle(c.image)}>${c.image ? '' : placeholderArt(pal)}</div>`
+    + `<div class="gw-art"${zone('image')}${backgroundImageStyle(c.image)}>${c.image ? '' : placeholderArt(pal)}</div>${emblem}`
     + `<div class="gw-shade" aria-hidden="true"></div>`
     + `<div class="gw-head"${zone('color')}>${cost}<h3 class="gw-name" style="font-size:max(var(--card-name-min,0px),${nameSizeEm(c.name, c.fullArt)}em)"${editable('name')}>${escapeHtml(c.name)}</h3>${element}</div>`
     + `<div class="gw-rules"><div class="gw-type"${zone('color')}>${quill}<span class="gw-typeName"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}<span class="gw-rarity" style="background:${RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun}" title="Rareté ${escapeHtml(c.rarity)}"></span></div>`
