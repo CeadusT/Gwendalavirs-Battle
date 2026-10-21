@@ -67,8 +67,6 @@ function normalizeCard(c) {
     rarity: RARITIES.includes(c.rarity) ? c.rarity : RARITIES[0],
     set: SETS.includes(c.set) ? c.set : SETS[0],
     spire: clamp(Math.round(Number(c.spire) || 0), MIN_SPIRE, MAX_SPIRE),
-    creativity: clamp(Math.round(Number(c.creativity) || 0), 0, EMBLEM.max),
-    power: clamp(Math.round(Number(c.power) || 0), 0, EMBLEM.max),
     showSpire: c.showSpire === undefined ? !AUTO_HIDE_SPIRE_TYPES.has(type) : c.showSpire !== false,
     attack: Math.max(0, Number(c.attack) || 0),
     health: Math.max(0, Number(c.health) || 0),
@@ -94,29 +92,6 @@ function cardKind(c) {
   const type = String(c?.type || '');
   if (!/dessin/i.test(type)) return '';
   return /légendaire/i.test(type) ? 'legend' : 'drawing';
-}
-
-/* Blason des Dessins (SVG 100 × 100) : Volonté (rouge) et Créativité (bleu) en haut,
-   Pouvoir (jaune) en bas, sur un disque noir serti d'or. Le même dessin sert au PDF (print.js). */
-const EMBLEM_LAYOUT = {
-  disc: { cx: 50, cy: 50, r: 48 },
-  circles: [
-    { key: 'will', field: 'spire', cx: 33, cy: 39, tx: 29, ty: 35, title: 'Volonté' },
-    { key: 'creativity', field: 'creativity', cx: 67, cy: 39, tx: 71, ty: 35, title: 'Créativité' },
-    { key: 'power', field: 'power', cx: 50, cy: 69, tx: 50, ty: 73, title: 'Pouvoir' },
-  ],
-  r: 20,
-  center: { cx: 50, cy: 49, r: 9 },
-  symbol: 'M45 53 L50 48 L55 53 M50 48 L50 43',
-};
-
-function emblemSvg(c) {
-  const L = EMBLEM_LAYOUT;
-  const circles = L.circles.map(k => `<circle cx="${k.cx}" cy="${k.cy}" r="${L.r}" fill="${EMBLEM[k.key]}" stroke="${EMBLEM.gold}" stroke-width="2.5"/>`).join('');
-  const numbers = L.circles.map(k => `<text x="${k.tx}" y="${k.ty}">${Number(c[k.field]) || 0}</text>`).join('');
-  return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="${EMBLEM.ink}" stroke="${EMBLEM.gold}" stroke-width="3.5"/>${circles}`
-    + `<circle cx="${L.center.cx}" cy="${L.center.cy}" r="${L.center.r}" fill="${EMBLEM.ink}" stroke="${EMBLEM.gold}" stroke-width="2"/>`
-    + `<path d="${L.symbol}" fill="none" stroke="${EMBLEM.gold}" stroke-width="1.8" stroke-linecap="round"/>${numbers}</svg>`;
 }
 
 const QUILL_ICON = 'M20 4c-7 0-12 4-14 11l-1 5 4-2c7-2 11-7 11-14ZM5 20l7-7';
@@ -322,8 +297,7 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const copies = quick ? deckCopies(c) : 0;
   const deckCount = copies ? `<span class="libraryDeckCount" title="${copies} exemplaire${copies > 1 ? 's' : ''} dans le deck">×${copies}</span>` : '';
 
-  const cost = showCost && !kind ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
-  const emblem = showCost && kind ? `<div class="gw-emblem"${zone('spire')} title="Volonté ${c.spire} · Créativité ${c.creativity} · Pouvoir ${c.power}">${emblemSvg(c)}</div>` : '';
+  const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
   const quill = kind === 'drawing' ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><path d="${QUILL_ICON}"/></svg>` : '';
   const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
@@ -338,7 +312,7 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
 
   return actions
     + `<div class="${variant}" style="${vars}"><div class="gw-body">`
-    + `<div class="gw-art"${zone('image')}${backgroundImageStyle(c.image)}>${c.image ? '' : placeholderArt(pal)}</div>${emblem}`
+    + `<div class="gw-art"${zone('image')}${backgroundImageStyle(c.image)}>${c.image ? '' : placeholderArt(pal)}</div>`
     + `<div class="gw-shade" aria-hidden="true"></div>`
     + `<div class="gw-head"${zone('color')}>${cost}<h3 class="gw-name" style="font-size:max(var(--card-name-min,0px),${nameSizeEm(c.name, c.fullArt)}em)"${editable('name')}>${escapeHtml(c.name)}</h3>${element}</div>`
     + `<div class="gw-rules"><div class="gw-type"${zone('color')}>${quill}<span class="gw-typeName"${zone('type')} style="${styleCss(c.typeStyle, DEFAULT_TYPE_STYLE)}">${escapeHtml(c.type)}</span>${subtype}<span class="gw-rarity" style="background:${RARITY_COLORS[c.rarity] || RARITY_COLORS.Commun}" title="Rareté ${escapeHtml(c.rarity)}"></span></div>`

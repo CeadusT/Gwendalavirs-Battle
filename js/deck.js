@@ -442,7 +442,7 @@ savedDeckList.onclick = e => {
 
 /* ---------- Export pour le logiciel de jeu ---------- */
 
-const GAME_CARD_FIELDS = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'text', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'creativity', 'power', 'image'];
+const GAME_CARD_FIELDS = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'text', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'image'];
 const gameCard = c => Object.fromEntries(GAME_CARD_FIELDS.filter(k => c[k] !== undefined).map(k => [k, c[k]]));
 
 /* Fichier lu par le logiciel de jeu (format « gwendalavirs-battle-deck ») :

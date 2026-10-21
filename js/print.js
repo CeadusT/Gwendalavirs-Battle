@@ -261,49 +261,37 @@ function prismGradient(ctx, x0, x1, fadeEnd = false) {
   return g;
 }
 
-/* Blason des Dessins (même dessin que emblemSvg dans cards.js), carré de côté size. */
-function drawEmblem(ctx, c, x, y, size) {
-  const L = EMBLEM_LAYOUT;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(size / 100, size / 100);
-  ctx.shadowColor = 'rgba(0,0,0,.75)';
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 2;
-  const disc = (cx, cy, r, fill, width) => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = fill;
-    ctx.fill();
-    ctx.lineWidth = width;
-    ctx.strokeStyle = EMBLEM.gold;
-    ctx.stroke();
-  };
-  disc(L.disc.cx, L.disc.cy, L.disc.r, EMBLEM.ink, 3.5);
-  ctx.shadowColor = 'transparent';
-  for (const k of L.circles) disc(k.cx, k.cy, L.r, EMBLEM[k.key], 2.5);
-  disc(L.center.cx, L.center.cy, L.center.r, EMBLEM.ink, 2);
-  ctx.lineWidth = 1.8;
-  ctx.lineCap = 'round';
-  ctx.stroke(new Path2D(L.symbol));
-  ctx.font = `700 21px ${CARD_THEME.fontTitle}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = 3.2;
-  ctx.strokeStyle = '#17110a';
-  ctx.fillStyle = '#fffaf0';
-  for (const k of L.circles) {
-    const v = String(Number(c[k.field]) || 0);
-    ctx.strokeText(v, k.tx, k.ty + 1);
-    ctx.fillText(v, k.tx, k.ty + 1);
-  }
-  ctx.restore();
-}
-
 function drawCost(ctx, c, cx, cy, full) {
   const r = 1.125 * EM;   // diamètre 2,25 em
   ctx.beginPath();
+  if (cardKind(c) === 'drawing') {
+    // Dessin : losange à l'encre de l'élément.
+    const pal = cardPalette(c);
+    const d = 1.38 * EM;
+    ctx.moveTo(cx, cy - d);
+    ctx.lineTo(cx + d, cy);
+    ctx.lineTo(cx, cy + d);
+    ctx.lineTo(cx - d, cy);
+    ctx.closePath();
+    if (full) {
+      ctx.fillStyle = 'rgba(14,12,10,.6)';
+    } else {
+      const g = ctx.createRadialGradient(cx - d * 0.3, cy - d * 0.4, 1, cx, cy, d);
+      g.addColorStop(0, pal.inkMid);
+      g.addColorStop(0.75, pal.inkDark);
+      ctx.fillStyle = g;
+    }
+    ctx.fill();
+    ctx.lineWidth = full ? 3 : 4;
+    ctx.strokeStyle = pal.light;
+    ctx.stroke();
+    ctx.fillStyle = '#f3f7fb';
+    ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(c.spire), cx, cy + 2);
+    return;
+  }
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   if (full) {
     ctx.fillStyle = 'rgba(10,9,7,.6)';
@@ -506,9 +494,8 @@ async function renderCardJpeg(c, lowInk = false) {
 
     const headY = 0.5 * EM + 1.8125 * EM;
     const padX = EM;
-    const emblem = showCost && kind;
-    if (!emblem && showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
-    const nameLeft = padX + (showCost && !emblem ? 2.25 * EM + 0.5 * EM : 0);
+    if (showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
+    const nameLeft = padX + (showCost ? 2.25 * EM + 0.5 * EM : 0);
     const nameRight = W - padX - (isHero ? 0 : 2.125 * EM + 0.5 * EM);
     drawName(ctx, c, nameLeft, nameRight, headY, true);
     if (!isHero) {
@@ -580,9 +567,8 @@ async function renderCardJpeg(c, lowInk = false) {
 
     const headY = by + 1.8125 * EM;
     const padX = 0.5625 * EM;
-    const emblem = showCost && kind;
-    if (!emblem && showCost) drawCost(ctx, c, bx + padX + 1.125 * EM, headY, false);
-    const nameLeft = bx + padX + (showCost && !emblem ? 2.25 * EM : 0) + 0.5 * EM;
+    if (showCost) drawCost(ctx, c, bx + padX + 1.125 * EM, headY, false);
+    const nameLeft = bx + padX + (showCost ? 2.25 * EM : 0) + 0.5 * EM;
     const nameRight = bx + bw - padX - (isHero ? 0 : 2.125 * EM) - 0.5 * EM;
     drawName(ctx, c, nameLeft, nameRight, headY, false);
     if (!isHero) {
@@ -671,11 +657,6 @@ async function renderCardJpeg(c, lowInk = false) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = isHero ? '#fff3cf' : kind === 'legend' ? '#ffffff' : CARD_THEME.gold;
     ctx.stroke();
-  }
-  // Blason des Dessins : en bas à gauche de l'illustration (mêmes cotes que .gw-emblem).
-  if (showCost && kind) {
-    const full = c.fullArt === true;
-    drawEmblem(ctx, c, (full ? 0.7 : 0.95) * EM, H - (full ? 12.475 : 11.95) * EM - 4.3 * EM, 4.3 * EM);
   }
   ctx.restore();
 
