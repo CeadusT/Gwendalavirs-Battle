@@ -261,55 +261,44 @@ function prismGradient(ctx, x0, x1, fadeEnd = false) {
   return g;
 }
 
+/* Coût : pastille à la couleur de l'élément (losange pour les Dessins), comme l'attribut. */
 function drawCost(ctx, c, cx, cy, full) {
   const r = 1.125 * EM;   // diamètre 2,25 em
+  const pal = cardPalette(c);
+  const fill = size => {
+    const g = ctx.createRadialGradient(cx - size * 0.3, cy - size * 0.4, 1, cx, cy, size);
+    g.addColorStop(0, pal.light);
+    g.addColorStop(0.7, pal.el);
+    return g;
+  };
   ctx.beginPath();
   if (cardKind(c) === 'drawing') {
-    // Dessin : losange à l'encre de l'élément.
-    const pal = cardPalette(c);
     const d = 1.38 * EM;
     ctx.moveTo(cx, cy - d);
     ctx.lineTo(cx + d, cy);
     ctx.lineTo(cx, cy + d);
     ctx.lineTo(cx - d, cy);
     ctx.closePath();
-    if (full) {
-      ctx.fillStyle = 'rgba(14,12,10,.6)';
-    } else {
-      const g = ctx.createRadialGradient(cx - d * 0.3, cy - d * 0.4, 1, cx, cy, d);
-      g.addColorStop(0, pal.inkMid);
-      g.addColorStop(0.75, pal.inkDark);
-      ctx.fillStyle = g;
-    }
-    ctx.fill();
-    ctx.lineWidth = full ? 3 : 4;
-    ctx.strokeStyle = pal.light;
-    ctx.stroke();
-    ctx.fillStyle = '#f3f7fb';
-    ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(c.spire), cx, cy + 2);
-    return;
-  }
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  if (full) {
-    ctx.fillStyle = 'rgba(10,9,7,.6)';
+    ctx.fillStyle = fill(d);
   } else {
-    const g = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.4, 1, cx, cy, r);
-    g.addColorStop(0, '#3a3127');
-    g.addColorStop(0.75, '#120f0b');
-    ctx.fillStyle = g;
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = fill(r);
   }
   ctx.fill();
   ctx.lineWidth = full ? 3 : 4;
-  ctx.strokeStyle = full ? CARD_THEME.goldLight : CARD_THEME.gold;
+  ctx.strokeStyle = '#e9d9a8';
   ctx.stroke();
-  ctx.fillStyle = full ? '#fbf3df' : '#f3e6c4';
+  ctx.fillStyle = '#fffaf0';
   ctx.font = `700 ${1.125 * EM}px ${CARD_THEME.fontTitle}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,.55)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 2;
   ctx.fillText(String(c.spire), cx, cy + 2);
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
 }
 
 function drawName(ctx, c, left, right, cy, full) {
@@ -343,9 +332,10 @@ function drawTypeLine(ctx, c, x, cy, right, colors, full) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   let start = x;
-  if (kind === 'drawing') {
+  const family = FAMILY_ICONS[cardFamily(c)];
+  if (family) {
     const q = typeSt.fontSize * 2 * 1.1;
-    strokeIcon(ctx, QUILL_ICON, x + q / 2, cy, q, colors.type, 2.2);
+    strokeIcon(ctx, family.icon, x + q / 2, cy, q, colors.type, 2.2);
     start = x + q + 8;
   }
   ctx.letterSpacing = '1.5px';
@@ -635,11 +625,11 @@ async function renderCardJpeg(c, lowInk = false) {
     const textTop = typeTop + typeH;
     const footTop = by + bh - footH;
     const textBg = ctx.createLinearGradient(0, textTop, 0, footTop);
-    textBg.addColorStop(0, '#f2eadb');
-    textBg.addColorStop(1, '#e8ddc5');
+    textBg.addColorStop(0, pal.textTop);
+    textBg.addColorStop(1, pal.textBottom);
     ctx.fillStyle = textBg;
     ctx.fillRect(bx, textTop, bw, footTop - textTop);
-    ctx.fillStyle = CARD_THEME.parchmentShade;
+    ctx.fillStyle = pal.textBottom;
     ctx.fillRect(bx, footTop, bw, footH);
     const ts = normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE);
     ctx.textAlign = 'left';

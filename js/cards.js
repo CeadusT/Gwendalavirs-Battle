@@ -85,16 +85,32 @@ function normalizeCard(c) {
 const isBaseId = id => String(id).startsWith('base-');
 const isHeroCard = c => c?.type === HERO_TYPE;
 
-/* Famille visuelle d'une carte : 'legend' (Dessin légendaire), 'drawing' (autre Dessin) ou ''.
-   Les Dessins ont un coût en losange et une plume sur la ligne de type ;
-   les Dessins légendaires un cadre prismatique (voir css/styles.css, section Cartes). */
-function cardKind(c) {
+/* Catégorie d'une carte, d'après son Type : 'drawing' (Dessin), 'item' (Objet), 'ally' (Personnage, Allié, Jeton) ou ''. */
+function cardFamily(c) {
   const type = String(c?.type || '');
-  if (!/dessin/i.test(type)) return '';
-  return /légendaire/i.test(type) ? 'legend' : 'drawing';
+  if (/dessin/i.test(type)) return 'drawing';
+  if (/objet/i.test(type)) return 'item';
+  if (/personnage|alli|jeton/i.test(type)) return 'ally';
+  return '';
 }
 
-const QUILL_ICON = 'M20 4c-7 0-12 4-14 11l-1 5 4-2c7-2 11-7 11-14ZM5 20l7-7';
+/* Légendaire : rareté Légendaire ou « légendaire » dans le Type (sauf Héros). */
+const isLegendCard = c => !isHeroCard(c) && (c?.rarity === 'Légendaire' || /légendaire/i.test(String(c?.type || '')));
+
+/* Famille visuelle d'une carte : 'legend' (toute carte légendaire), 'drawing' (autre Dessin) ou ''.
+   Les Dessins ont un coût en losange et un bandeau de type à l'encre de l'élément ;
+   les légendaires un cadre prismatique (voir css/styles.css, section Cartes). */
+function cardKind(c) {
+  if (isLegendCard(c)) return 'legend';
+  return cardFamily(c) === 'drawing' ? 'drawing' : '';
+}
+
+/* Logo de catégorie devant le Type (plume, silhouette, coffre). */
+const FAMILY_ICONS = {
+  drawing: { icon: 'M20 4c-7 0-12 4-14 11l-1 5 4-2c7-2 11-7 11-14ZM5 20l7-7', title: 'Dessin' },
+  ally: { icon: 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0', title: 'Allié' },
+  item: { icon: 'M4 11h16v9H4zM4 11a8 6 0 0 1 16 0M4 15h16M11 14h2v3h-2z', title: 'Objet' },
+};
 
 /* ---------- Bibliothèque ---------- */
 
@@ -230,6 +246,9 @@ function cardPalette(c) {
     el,
     light: mixColor(el, '#ffffff', 0.5),
     tint: mixColor(el, CARD_THEME.parchment, 0.8),
+    // Fond du texte de règles, teinté de l'élément (comme les cartes MTG).
+    textTop: mixColor(el, '#f6efe0', 0.84),
+    textBottom: mixColor(el, '#eadfc6', 0.76),
     skyTop: mixColor(el, '#06070c', 0.62),
     skyBottom: mixColor(el, '#f3e3c0', 0.38),
     sun: mixColor(el, '#fff3d6', 0.68),
@@ -285,7 +304,7 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const pal = cardPalette(c);
   const kind = cardKind(c);
   const variant = `gw ${c.fullArt ? 'gw--full' : 'gw--normal'}${isHero ? ' gw--hero' : ''}${kind ? ` gw--${kind}` : ''}`;
-  const vars = `--el:${pal.el};--el-light:${pal.light};--el-tint:${pal.tint};--sky-top:${pal.skyTop};--sky-bottom:${pal.skyBottom}`
+  const vars = `--el:${pal.el};--el-light:${pal.light};--el-tint:${pal.tint};--el-text-top:${pal.textTop};--el-text-bottom:${pal.textBottom};--sky-top:${pal.skyTop};--sky-bottom:${pal.skyBottom}`
     + (kind === 'drawing' ? `;--el-pale:${pal.pale};--ink-dark:${pal.inkDark};--ink-mid:${pal.inkMid};--ink-light:${pal.inkLight}` : '');
 
   const actions = quick ? `<div class="cardActionGrid">`
@@ -298,7 +317,8 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const deckCount = copies ? `<span class="libraryDeckCount" title="${copies} exemplaire${copies > 1 ? 's' : ''} dans le deck">×${copies}</span>` : '';
 
   const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
-  const quill = kind === 'drawing' ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><path d="${QUILL_ICON}"/></svg>` : '';
+  const family = FAMILY_ICONS[cardFamily(c)];
+  const quill = family ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><title>${family.title}</title><path d="${family.icon}"/></svg>` : '';
   const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
   // Médaillon ATK | PV à droite du pied de carte (l'un ou l'autre peut être masqué).

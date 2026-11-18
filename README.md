@@ -1,6 +1,6 @@
 # Gwendalavir's Battle — Deckbuilder
 
-Deckbuilder web de **Gwendalavir's Battle** (version 2.12) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
+Deckbuilder web de **Gwendalavir's Battle** (version 2.13) : bibliothèque de cartes, construction de decks, Card Studio, corbeille, imports JSON / Excel et exports PDF / Tabletop Simulator / logiciel de jeu.
 
 Le site est **100 % statique** (HTML, CSS, JavaScript) : aucune installation, aucun serveur, aucune dépendance.
 
@@ -81,7 +81,7 @@ Polices : Cinzel (noms, coût, statistiques), Alegreya (texte), Alegreya Sans SC
 - **Onglet Partage** : rassemble des cartes (glisser-déposer, clic, glisser une carte de la bibliothèque sur l’onglet, ou bouton « Envoyer vers Partage » du Card Studio ; glisser une carte de la droite vers la gauche la retire) et les exporte en JSON au format bibliothèque ; l’autre joueur les importe avec « Importer JSON ». La sélection est conservée (`gwb.shareList`).
 - **Carte unique** : case dans le Card Studio (et colonne `Unique (1/0)` de l’import Excel). Le logiciel de jeu interdit alors d’avoir deux exemplaires de la carte en même temps sur le terrain.
 - **Import Excel** : il accepte les variantes de saisie (« Commune », apostrophe typographique ’…). Les exemples du modèle fourni sont désormais acceptés.
-- **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Plante, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
+- **Éléments** : un seul jeu de noms partout (Rouge = Feu, Bleu = Eau, Vert = Vent, Violet = Ombre, Marron = Terre, Jaune = Foudre, Gris = Neutre).
 - **Limites d'exemplaires** : les Types créés à la main ont maintenant leur propre ligne.
 - **Card Studio** : une carte enregistrée sans texte n'hérite plus du texte d'exemple. L'aperçu n'affiche plus de curseur « main ».
 - **Recherche** : elle est plus rapide (le texte de chaque carte est indexé une seule fois).

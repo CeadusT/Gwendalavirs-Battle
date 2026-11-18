@@ -1030,15 +1030,16 @@ body.draggingCard * {
   height: 2em;
   box-sizing: border-box;
   border-radius: 50%;
-  border: .111em solid #c9a45c;
-  background: radial-gradient(circle at 35% 30%,#3a3127,#120f0b 75%);
+  border: .111em solid #e9d9a8;
+  background: radial-gradient(circle at 35% 30%,var(--el-light),var(--el) 70%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Cinzel',Georgia,serif;
   font-weight: 700;
   font-size: 1.125em;
-  color: #f3e6c4;
+  color: #fffaf0;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
   line-height: 1;
 }
 
@@ -1138,7 +1139,7 @@ body.draggingCard * {
   padding: .625em .94em .375em;
   line-height: 1.36;
   color: #241c13;
-  background: linear-gradient(180deg,#f2eadb,#e8ddc5);
+  background: linear-gradient(180deg,var(--el-text-top,#f2eadb),var(--el-text-bottom,#e8ddc5));
   overflow: hidden;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -1158,7 +1159,7 @@ body.draggingCard * {
   grid-template-columns: minmax(0,1fr) auto;
   column-gap: .5em;
   align-items: center;
-  background: #e8ddc5;
+  background: var(--el-text-bottom,#e8ddc5);
 }
 
 .gw-stats {
@@ -1297,7 +1298,6 @@ body.draggingCard * {
 .gw--full .gw-cost {
   border-width: .083em;
   border-color: #e8d49c;
-  background: rgba(10,9,7,.6);
 }
 
 .gw--full .gw-name {
@@ -1404,8 +1404,7 @@ body.draggingCard * {
 
 .gw--drawing .gw-cost {
   border-radius: .25em;
-  border-color: var(--el-light);
-  background: radial-gradient(circle at 35% 30%,var(--ink-mid),var(--ink-dark) 75%);
+  border-color: #e9d9a8;
   transform: rotate(45deg) scale(.9);
 }
 
@@ -1434,11 +1433,6 @@ body.draggingCard * {
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.gw--drawing.gw--full .gw-cost {
-  border-color: var(--el-light);
-  background: rgba(14,12,10,.6);
 }
 
 .gw--drawing.gw--full .gw-type {

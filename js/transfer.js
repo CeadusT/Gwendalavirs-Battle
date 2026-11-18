@@ -34,6 +34,79 @@ $('#exportCardList').onclick = () => {
   flash(`${list.length} cartes exportées sans illustrations.`);
 };
 
+/* ---------- Export de la bibliothèque en Excel (.xlsx) ----------
+   Mêmes colonnes que le modèle d'import : le fichier se réimporte tel quel.
+   Les illustrations importées (trop lourdes) ne sont pas incluses, seuls les liens web le sont. */
+const EXCEL_COLUMNS = [
+  ['ID', 14, c => c.id],
+  ['Nom', 28, c => c.name],
+  ['Couleur', 12, c => c.color],
+  ['Type', 18, c => c.type],
+  ['Sous-type', 18, c => c.subtype],
+  ['Volonté', 9, c => c.spire],
+  ['Afficher Volonté (1/0)', 12, c => (c.showSpire !== false ? 1 : 0)],
+  ['Rareté', 12, c => c.rarity],
+  ['Illustration', 20, c => (/^https?:/i.test(c.image || '') ? c.image : '')],
+  ['Texte', 50, c => plainText(c.text)],
+  ['Texte HTML', 50, c => c.text],
+  ['Set', 26, c => c.set],
+  ['ATK', 7, c => c.attack],
+  ['Afficher ATK (1/0)', 12, c => (c.showAttack ? 1 : 0)],
+  ['PV', 7, c => c.health],
+  ['Afficher PV (1/0)', 12, c => (c.showHealth ? 1 : 0)],
+  ['Limite spéciale', 12, c => c.deckLimitOverride || ''],
+  ['Full art (1/0)', 10, c => (c.fullArt ? 1 : 0)],
+  ['Unique (1/0)', 10, c => (c.unique ? 1 : 0)],
+  ['Taille texte', 10, c => c.textStyle?.fontSize ?? DEFAULT_TEXT_STYLE.fontSize],
+  ['Taille Type', 10, c => c.typeStyle?.fontSize ?? DEFAULT_TYPE_STYLE.fontSize],
+  ['Type gras', 9, c => (c.typeStyle?.bold !== false ? 1 : 0)],
+  ['Type italique', 9, c => (c.typeStyle?.italic ? 1 : 0)],
+  ['Type souligné', 9, c => (c.typeStyle?.underline ? 1 : 0)],
+  ['Taille Sous-type', 10, c => c.subtypeStyle?.fontSize ?? DEFAULT_SUBTYPE_STYLE.fontSize],
+  ['Sous-type gras', 9, c => (c.subtypeStyle?.bold ? 1 : 0)],
+  ['Sous-type italique', 9, c => (c.subtypeStyle?.italic ? 1 : 0)],
+  ['Sous-type souligné', 9, c => (c.subtypeStyle?.underline ? 1 : 0)],
+];
+
+const xmlEscape = v => String(v ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+
+function excelColumnName(i) {
+  let name = '';
+  for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + ((n - 1) % 26)) + name;
+  return name;
+}
+
+function excelCell(value, ref, style) {
+  const s = style ? ` s="${style}"` : '';
+  if (typeof value === 'number' && Number.isFinite(value)) return `<c r="${ref}"${s}><v>${value}</v></c>`;
+  if (value === '' || value == null) return '';
+  return `<c r="${ref}"${s} t="inlineStr"><is><t xml:space="preserve">${xmlEscape(value)}</t></is></c>`;
+}
+
+function buildLibraryXlsx(list) {
+  const header = `<row r="1">${EXCEL_COLUMNS.map(([name], i) => excelCell(name, `${excelColumnName(i)}1`, 1)).join('')}</row>`;
+  const rows = list.map((c, r) => `<row r="${r + 2}">${EXCEL_COLUMNS.map(([, , get], i) => excelCell(get(c), `${excelColumnName(i)}${r + 2}`, 2)).join('')}</row>`).join('');
+  const cols = EXCEL_COLUMNS.map(([, width], i) => `<col min="${i + 1}" max="${i + 1}" width="${width}" customWidth="1"/>`).join('');
+  const last = `${excelColumnName(EXCEL_COLUMNS.length - 1)}${list.length + 1}`;
+  const ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
+  const head = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const files = {
+    '[Content_Types].xml': `${head}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+    '_rels/.rels': `${head}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+    'xl/workbook.xml': `${head}<workbook ${ns} xmlns:r="${OOXML_REL_NS}"><sheets><sheet name="Cartes" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+    'xl/_rels/workbook.xml.rels': `${head}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+    // Style 1 : en-tête (gras, fond doré) · style 2 : cellules alignées en haut, texte à la ligne.
+    'xl/styles.xml': `${head}<styleSheet ${ns}><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1A1408"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE9B849"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="3"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"><alignment vertical="center" wrapText="1"/></xf><xf applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs></styleSheet>`,
+    'xl/worksheets/sheet1.xml': `${head}<worksheet ${ns}><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${header}${rows}</sheetData><autoFilter ref="A1:${last}"/></worksheet>`,
+  };
+  return new Blob([makeZip(Object.entries(files).map(([name, xml]) => ({ name, bytes: textBytes(xml) })))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+
+$('#exportExcel').onclick = () => {
+  downloadBlob(buildLibraryXlsx(cards), `Gwendalavirs-Battle-Bibliotheque-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  flash(`${cards.length} cartes exportées en Excel (sans les illustrations).`);
+};
+
 $('#importLibrary').onclick = () => $('#importLibraryFile').click();
 
 /* Les cartes « Ewilan » et « Salim » importées reprennent l'illustration déjà
