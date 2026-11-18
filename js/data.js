@@ -5,7 +5,7 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '2.15';
+const APP_VERSION = '2.16';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';
@@ -47,7 +47,7 @@ const REACTIONS = {
   Rouge: { icon: REACTION_ICONS.attack, sign: '+', text: v => `+${v} ATK` },
   Vert: { icon: REACTION_ICONS.attack, sign: '−', text: v => `−${v} ATK` },
   Jaune: { icon: REACTION_ICONS.burst, sign: '', text: v => `Inflige ${v} blessure${v > 1 ? 's' : ''}` },
-  Violet: { icon: REACTION_ICONS.eye, sign: '', text: v => `Regarde la première carte du deck adverse et applique son effet de réaction (${v})` },
+  Violet: { icon: REACTION_ICONS.eye, sign: '', text: v => (v > 1 ? `Regarde les ${v} premières cartes du deck adverse et applique l'effet de réaction de l'une d'elles` : "Regarde la première carte du deck adverse et applique son effet de réaction") },
   Bleu: { icon: REACTION_ICONS.heart, sign: '+', text: v => `Soigne ${v}` },
   Marron: { icon: REACTION_ICONS.shield, sign: '', text: v => `Protège ${v} blessure${v > 1 ? 's' : ''}` },
 };
