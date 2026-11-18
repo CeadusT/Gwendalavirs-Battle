@@ -16,6 +16,7 @@ const STORAGE_KEYS = {
   currentDeckId: 'gwb.currentDeckId',
   // Bibliothèque
   libraryOrder: 'gwb.libraryOrder',
+  breakdownOpen: 'gwb.breakdownOpen',
   shareList: 'gwb.shareList',              // cartes rassemblées dans l'onglet Partage
   bookmarks: 'gwb.bookmarks',
   freshlySaved: 'gwb.freshlySaved',

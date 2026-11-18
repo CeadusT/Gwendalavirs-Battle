@@ -78,6 +78,10 @@ function addCard(c) {
     flash(`${c.name} devient ton héros.`);
     return;
   }
+  if (isLegendCard(c) && legendCount(deckEntries()) >= LEGEND_SLOTS) {
+    flash(`Les ${LEGEND_SLOTS} emplacements légendaires sont déjà pris.`);
+    return;
+  }
   if (!deckOrder.includes(c.id)) deckOrder.push(c.id);
   deck[c.id] = qtyOf(c.id) + 1;
   deckChanged();
@@ -119,15 +123,32 @@ function renderBreakdown(target, items, total) {
   }).join('');
 }
 
-function renderDeckBreakdowns(entries) {
-  const all = hero ? [...entries, { c: hero, q: 1 }] : entries;
-  const total = all.reduce((n, x) => n + x.q, 0);
-  const count = (...types) => all.filter(x => types.includes(x.c.type)).reduce((n, x) => n + x.q, 0);
+const sumQty = entries => entries.reduce((n, x) => n + x.q, 0);
+const legendCount = entries => sumQty(entries.filter(x => isLegendCard(x.c)));
+
+/* Répartition du deck (hors héros et légendaires) : Alliés / Dessins / Objets. */
+function renderDeckBreakdowns(main) {
+  const count = family => sumQty(main.filter(x => cardFamily(x.c) === family));
   renderBreakdown('#drawingBreakdown', [
-    ['Dessin de base', count('Dessin de base', 'Dessin de base jeton')],
-    ['Dessin avancé', count('Dessin avancé')],
-    ['Dessin légendaire', count('Dessin légendaire')],
-  ], total);
+    ['Alliés', count('ally')],
+    ['Dessins', count('drawing')],
+    ['Objets', count('item')],
+  ], sumQty(main));
+}
+
+/* Couleurs du deck (héros compris) : une pastille par élément présent. */
+function colorDotsMarkup(entries) {
+  const used = new Set([...entries.map(x => x.c.color), ...(hero ? [hero.color] : [])]);
+  const dots = COLOR_NAMES.filter(name => used.has(name))
+    .map(name => `<i class="colorDot" style="background:${COLORS[name].hex}" title="${escapeHtml(`${name} · ${COLORS[name].element}`)}"></i>`).join('');
+  return dots || '<span class="colorNone">—</span>';
+}
+
+/* Les 3 emplacements légendaires, remplis dans l'ordre du deck. */
+function legendSlotsMarkup(legends) {
+  const rows = legends.map(deckRowMarkup);
+  for (let i = sumQty(legends); i < LEGEND_SLOTS; i++) rows.push('<div class="legendSlot">Emplacement légendaire libre</div>');
+  return `<section class="legendSlots"><div class="legendSlotsHead"><span class="label">Légendaires</span><b>${sumQty(legends)}/${LEGEND_SLOTS}</b></div>${rows.join('')}</section>`;
 }
 
 function deckRowMarkup({ c, q }) {
@@ -143,22 +164,29 @@ function deckRowMarkup({ c, q }) {
 
 function renderDeck() {
   const entries = deckEntries();
-  const total = entries.reduce((n, x) => n + x.q, 0);
+  const legends = entries.filter(x => isLegendCard(x.c));
+  const main = entries.filter(x => !isLegendCard(x.c));
+  const total = sumQty(main);   // les légendaires ne comptent pas dans le total
   $('#deckCount').textContent = total;
   $('#statCards').textContent = total;
-  $('#statColors').textContent = new Set(entries.map(x => x.c.color)).size;
+  $('#statColors').innerHTML = colorDotsMarkup(entries);
   $('#statSpire').textContent = entries.reduce((n, x) => n + x.c.spire * x.q, 0);
   $('#deckName').textContent = deckName;
   $('#heroName').textContent = hero ? hero.name : 'Aucun héros';
   $('#heroMeta').textContent = hero ? `${hero.color} · ${hero.rarity}` : 'Choisis un Héros dans la bibliothèque';
   $('#heroOrb').textContent = hero ? '✦' : '+';
-  renderDeckBreakdowns(entries);
-  $('#deckRows').innerHTML = entries.length
-    ? entries.map(deckRowMarkup).join('')
-    : '<div class="note">Ajoute des cartes depuis la bibliothèque ou glisse-les ici.</div>';
+  renderDeckBreakdowns(main);
+  $('#deckRows').innerHTML = legendSlotsMarkup(legends) + (main.length
+    ? main.map(deckRowMarkup).join('')
+    : '<div class="note">Ajoute des cartes depuis la bibliothèque ou glisse-les ici.</div>');
 }
 
 const deckRows = $('#deckRows');
+
+/* Répartition rétractable : on retient si elle est ouverte ou fermée. */
+const breakdownPanel = $('#breakdownPanel');
+breakdownPanel.open = readText(STORAGE_KEYS.breakdownOpen) !== '0';
+breakdownPanel.addEventListener('toggle', () => writeText(STORAGE_KEYS.breakdownOpen, breakdownPanel.open ? '1' : '0'));
 const clearDeckDropMarkers = () => $$('.deckRow').forEach(x => x.classList.remove('dropBefore', 'dropAfter'));
 const rowDropsAfter = (row, e) => {
   const box = row.getBoundingClientRect();
@@ -333,7 +361,7 @@ function renderSavedDecks() {
     return;
   }
   savedDeckList.innerHTML = shown.map(d => {
-    const total = Object.values(d.deck || {}).reduce((n, q) => n + Number(q || 0), 0) + (d.heroId ? 1 : 0);
+    const total = Object.entries(d.deck || {}).reduce((n, [id, q]) => n + (isLegendCard(cardsById.get(id)) ? 0 : Number(q || 0)), 0) + (d.heroId ? 1 : 0);
     const isCurrent = d.id === currentDeckId;
     return `<div class="savedDeckRow ${isCurrent ? 'current' : ''}" data-id="${escapeHtml(d.id)}"><div class="savedDeckInfo"><strong>${escapeHtml(d.name)}</strong><small>${total} carte(s) · ${isCurrent ? 'deck actif' : 'sauvegardé'}</small></div>`
       + '<button data-action="open">Ouvrir</button><button data-action="rename">Renommer</button><button data-action="duplicate">Dupliquer</button><button class="deleteSavedDeck" data-action="delete">Supprimer</button></div>';

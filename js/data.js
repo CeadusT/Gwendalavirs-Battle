@@ -5,7 +5,7 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '2.13';
+const APP_VERSION = '2.14';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';
@@ -15,6 +15,8 @@ const SETS = ["D'un monde à l'autre", 'Le pacte des Marchombre', "La revanche d
 const MIN_SPIRE = 0;
 const MAX_SPIRE = 6;
 const DEFAULT_LIMIT = 3;
+/* Emplacements réservés aux cartes légendaires, hors du compte du deck. */
+const LEGEND_SLOTS = 3;
 
 /* Couleur = élément de la carte (charte graphique v2).
    element : nom affiché · hex : teinte de l'élément (cartes, PDF, filtres)
