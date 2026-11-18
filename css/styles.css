@@ -1073,6 +1073,42 @@ body.draggingCard * {
   justify-content: center;
 }
 
+.gw-react {
+  flex: 0 0 2.6em;
+  width: 2.6em;
+  height: 2.6em;
+  flex-direction: column;
+  background: radial-gradient(circle at 35% 30%,var(--el-light),var(--el) 70%);
+  box-shadow: 0 .1em .3em rgba(0,0,0,.55);
+}
+
+.gw-react b {
+  font-family: 'Cinzel',Georgia,serif;
+  font-weight: 700;
+  font-size: .95em;
+  line-height: 1;
+  color: #fffaf0;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+.gw-el.gw-react svg {
+  width: .95em;
+  height: .95em;
+  margin-bottom: .05em;
+  stroke-width: 2.2;
+}
+
+.gw--full .gw-el.gw-react {
+  border: .11em solid #e9d9a8;
+  background: radial-gradient(circle at 35% 30%,var(--el-light),var(--el) 70%);
+}
+
+.gw--full .gw-el.gw-react svg {
+  width: .95em;
+  height: .95em;
+  stroke: #fffaf0;
+}
+
 .gw-el svg {
   width: 1.125em;
   height: 1.125em;
@@ -3215,6 +3251,23 @@ body.draggingCard * {
 }
 
 /* Coût et statistiques : trois colonnes alignées */
+.reactionRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.reactionRow select {
+  width: 64px;
+}
+
+.reactionHint {
+  font-size: 11px;
+  color: #c9b98f;
+}
+
 .uniqueToggle {
   margin-top: 10px;
 }

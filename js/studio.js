@@ -17,6 +17,8 @@ const sShowAttack = $('#studioShowAttack');
 const sShowHealth = $('#studioShowHealth');
 const sLimitOverride = $('#studioLimitOverride');
 const sUnique = $('#studioUnique');
+const sHasReaction = $('#studioHasReaction');
+const sReaction = $('#studioReaction');
 const sImage = $('#studioImage');
 const sText = $('#studioText');
 const liveCard = $('#liveCard');
@@ -52,6 +54,7 @@ Object.defineProperty(sText, 'value', {
 
 function buildStudioControls() {
   sColor.innerHTML = COLOR_NAMES.map(name => `<option>${name}</option>`).join('');
+  sReaction.innerHTML = Array.from({ length: MAX_REACTION + 1 }, (_, i) => `<option>${i}</option>`).join('');
   sSpire.innerHTML = Array.from({ length: MAX_SPIRE - MIN_SPIRE + 1 }, (_, i) => `<option>${MIN_SPIRE + i}</option>`).join('');
   textColorPalette.innerHTML = TEXT_COLORS.map(({ hex, name }) => `<button type="button" class="textColorSwatch" data-text-color="${hex}" style="--swatch: ${hex}" title="${name}" aria-label="Texte ${name.toLowerCase()}"></button>`).join('');
   $('#studioElementPicker').innerHTML = COLOR_NAMES.map(name => `<button type="button" class="elementChoice" role="radio" aria-checked="false" data-color="${name}" style="--el:${COLORS[name].hex}" title="${name} · ${COLORS[name].element}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[name].icon}"/></svg><span>${COLORS[name].element}</span></button>`).join('');
@@ -117,10 +120,15 @@ function studioCardData() {
     image: sImage.value,
     fullArt: studioFullArt,
     unique: sUnique.checked,
+    reaction: sHasReaction.checked ? sReaction.value : null,
   });
 }
 
 function renderLive() {
+  // Réaction : la valeur n'est modifiable que si la case est cochée ; l'effet dépend de la couleur.
+  const reaction = REACTIONS[sColor.value];
+  sReaction.disabled = !sHasReaction.checked || !reaction;
+  $('#reactionHint').textContent = reaction ? reaction.text(Number(sReaction.value)) : 'Pas de réaction pour cette couleur';
   const data = studioCardData();
   const preview = { ...data, name: sName.value || PREVIEW_NAME, text: data.text || PREVIEW_TEXT };
   liveCard.innerHTML = cardMarkup(preview, { studio: true });
@@ -131,7 +139,7 @@ function renderLive() {
   applySpellLanguageTo($$('[contenteditable]', liveCard));
 }
 
-for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride, sUnique]) {
+for (const input of [sName, sColor, sType, sSubtype, sSet, sSpire, sShowSpire, sAttack, sHealth, sShowAttack, sShowHealth, sLimitOverride, sUnique, sHasReaction, sReaction]) {
   input.addEventListener('input', () => {
     if (input === sType || input === sSubtype) syncTaxonomyDeleteButtons();
     renderLive();
@@ -659,6 +667,8 @@ function fillStudioForm(c) {
   sShowHealth.checked = !!c?.showHealth;
   sLimitOverride.value = c?.deckLimitOverride ? String(c.deckLimitOverride) : '';
   sUnique.checked = !!c?.unique;
+  sHasReaction.checked = c?.reaction !== null && c?.reaction !== undefined;
+  sReaction.value = String(c?.reaction ?? 1);
   sText.value = c?.text || '';
   textStyle = normalizeFontStyle(c?.textStyle, DEFAULT_TEXT_STYLE);
   typeStyle = normalizeFontStyle(c?.typeStyle, DEFAULT_TYPE_STYLE);

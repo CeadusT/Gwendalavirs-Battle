@@ -75,6 +75,7 @@ function normalizeCard(c) {
     deckLimitOverride: Number(c.deckLimitOverride) > 0 ? Number(c.deckLimitOverride) : null,
     fullArt: c.fullArt === true || c.fullArt === 'true',
     unique: c.unique === true || c.unique === 'true',
+    reaction: c.reaction === null || c.reaction === undefined || c.reaction === '' ? null : clamp(Math.round(Number(c.reaction) || 0), 0, MAX_REACTION),
     image,
     textStyle: normalizeFontStyle(c.textStyle, DEFAULT_TEXT_STYLE),
     typeStyle: normalizeFontStyle(c.typeStyle || c.tribalStyle, DEFAULT_TYPE_STYLE),
@@ -103,6 +104,13 @@ const isLegendCard = c => !isHeroCard(c) && (c?.rarity === 'Légendaire' || /lé
 function cardKind(c) {
   if (isLegendCard(c)) return 'legend';
   return cardFamily(c) === 'drawing' ? 'drawing' : '';
+}
+
+/* Réaction de la carte ({ icon, value, text }) ou null : il faut une valeur et une couleur qui a un effet. */
+function cardReaction(c) {
+  const r = REACTIONS[c?.color];
+  if (!r || c.reaction === null || c.reaction === undefined || isHeroCard(c)) return null;
+  return { icon: r.icon, value: `${r.sign}${c.reaction}`, text: r.text(c.reaction) };
 }
 
 /* Logo de catégorie devant le Type (plume, silhouette, coffre). */
@@ -319,7 +327,11 @@ function cardMarkup(c, { quick = false, studio = false } = {}) {
   const cost = showCost ? `<div class="gw-cost"${zone('spire')} title="Coût en Volonté"><span>${c.spire}</span></div>` : '';
   const family = FAMILY_ICONS[cardFamily(c)];
   const quill = family ? `<svg class="gw-quill" viewBox="0 0 24 24" aria-hidden="true"><title>${family.title}</title><path d="${family.icon}"/></svg>` : '';
-  const element = isHero ? '' : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
+  // En haut à droite : la Réaction (picto + valeur) si la carte en a une, sinon l'élément.
+  const reaction = cardReaction(c);
+  const element = isHero ? ''
+    : reaction ? `<div class="gw-el gw-react"${zone('reaction')} title="Réaction (tour adverse) : ${escapeHtml(reaction.text)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${reaction.icon}"/></svg><b>${reaction.value}</b></div>`
+      : `<div class="gw-el"${zone('color')} title="Élément ${escapeHtml(elementName(c))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${COLORS[c.color]?.icon || COLORS[FALLBACK_COLOR].icon}"/></svg></div>`;
   const subtype = c.subtype ? `<span class="gw-sep">·</span><span class="gw-subtype"${zone('subtype')} style="${styleCss(c.subtypeStyle, DEFAULT_SUBTYPE_STYLE)}">${escapeHtml(c.subtype)}</span>` : '';
   // Médaillon ATK | PV à droite du pied de carte (l'un ou l'autre peut être masqué).
   const statParts = [

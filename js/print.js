@@ -301,6 +301,36 @@ function drawCost(ctx, c, cx, cy, full) {
   ctx.shadowOffsetY = 0;
 }
 
+/* Médaillon de Réaction (picto + valeur), à la place de l'élément en haut à droite. */
+function drawReaction(ctx, c, reaction, cx, cy) {
+  const pal = cardPalette(c);
+  const r = 1.3 * EM;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.4, 1, cx, cy, r);
+  g.addColorStop(0, pal.light);
+  g.addColorStop(0.7, pal.el);
+  ctx.fillStyle = g;
+  ctx.shadowColor = 'rgba(0,0,0,.55)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 2;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#e9d9a8';
+  ctx.stroke();
+  strokeIcon(ctx, reaction.icon, cx, cy - 0.42 * EM, 0.95 * EM, '#fffaf0', 2.2);
+  ctx.fillStyle = '#fffaf0';
+  ctx.font = `700 ${0.95 * EM}px ${CARD_THEME.fontTitle}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,.6)';
+  ctx.shadowBlur = 4;
+  ctx.fillText(reaction.value, cx, cy + 0.5 * EM);
+  ctx.restore();
+}
+
 function drawName(ctx, c, left, right, cy, full) {
   const size = Number(nameSizeEm(c.name, full)) * EM;
   ctx.font = `600 ${size}px ${CARD_THEME.fontTitle}`;
@@ -486,9 +516,12 @@ async function renderCardJpeg(c, lowInk = false) {
     const padX = EM;
     if (showCost) drawCost(ctx, c, padX + 1.125 * EM, headY, true);
     const nameLeft = padX + (showCost ? 2.25 * EM + 0.5 * EM : 0);
-    const nameRight = W - padX - (isHero ? 0 : 2.125 * EM + 0.5 * EM);
+    const nameRight = W - padX - (isHero ? 0 : (cardReaction(c) ? 2.6 : 2.125) * EM + 0.5 * EM);
     drawName(ctx, c, nameLeft, nameRight, headY, true);
-    if (!isHero) {
+    const reaction = cardReaction(c);
+    if (reaction) {
+      drawReaction(ctx, c, reaction, W - padX - 1.3 * EM, headY);
+    } else if (!isHero) {
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,.9)';
       ctx.shadowBlur = 6;
@@ -559,9 +592,12 @@ async function renderCardJpeg(c, lowInk = false) {
     const padX = 0.5625 * EM;
     if (showCost) drawCost(ctx, c, bx + padX + 1.125 * EM, headY, false);
     const nameLeft = bx + padX + (showCost ? 2.25 * EM : 0) + 0.5 * EM;
-    const nameRight = bx + bw - padX - (isHero ? 0 : 2.125 * EM) - 0.5 * EM;
+    const nameRight = bx + bw - padX - (isHero ? 0 : cardReaction(c) ? 2.6 * EM : 2.125 * EM) - 0.5 * EM;
     drawName(ctx, c, nameLeft, nameRight, headY, false);
-    if (!isHero) {
+    const reaction = cardReaction(c);
+    if (reaction) {
+      drawReaction(ctx, c, reaction, bx + bw - padX - 1.3 * EM, headY);
+    } else if (!isHero) {
       const ex = bx + bw - padX - 1.0625 * EM;
       ctx.beginPath();
       ctx.arc(ex, headY, 1.0625 * EM, 0, Math.PI * 2);

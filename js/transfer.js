@@ -27,7 +27,7 @@ $('#exportLibrary').onclick = () => {
 
 /* Liste légère : toutes les cartes visibles, sans illustrations ni mise en forme. */
 $('#exportCardList').onclick = () => {
-  const fields = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'text'];
+  const fields = ['id', 'name', 'type', 'subtype', 'color', 'rarity', 'set', 'spire', 'attack', 'health', 'showAttack', 'showHealth', 'showSpire', 'fullArt', 'unique', 'reaction', 'text'];
   const list = cards.map(c => Object.fromEntries(fields.map(k => [k, k === 'text' ? plainText(c.text) : c[k]])));
   const pack = { format: 'gwendalavirs-battle-card-list', version: 1, exportedAt: new Date().toISOString(), count: list.length, cards: list };
   downloadBlob(new Blob([JSON.stringify(pack)], { type: 'application/json' }), `Gwendalavirs-Battle-Cartes-${new Date().toISOString().slice(0, 10)}.json`);
@@ -57,6 +57,7 @@ const EXCEL_COLUMNS = [
   ['Limite spéciale', 12, c => c.deckLimitOverride || ''],
   ['Full art (1/0)', 10, c => (c.fullArt ? 1 : 0)],
   ['Unique (1/0)', 10, c => (c.unique ? 1 : 0)],
+  ['Réaction', 10, c => c.reaction ?? ''],
   ['Taille texte', 10, c => c.textStyle?.fontSize ?? DEFAULT_TEXT_STYLE.fontSize],
   ['Taille Type', 10, c => c.typeStyle?.fontSize ?? DEFAULT_TYPE_STYLE.fontSize],
   ['Type gras', 9, c => (c.typeStyle?.bold !== false ? 1 : 0)],
@@ -368,6 +369,7 @@ function cardFromExcel(row, headers, line, embeddedImages) {
     deckLimitOverride: Math.max(0, excelNumber(get('Limite spéciale', 'Limite speciale'), 0)) || null,
     fullArt: excelBool(get('Full art (1/0)', 'Full art'), false),
     unique: excelBool(get('Unique (1/0)', 'Unique'), false),
+    reaction: String(get('Réaction', 'Reaction')).trim() === '' ? null : excelNumber(get('Réaction', 'Reaction'), 0),
     textStyle: { fontSize: excelNumber(get('Taille texte'), DEFAULT_TEXT_STYLE.fontSize) },
     typeStyle: {
       fontSize: excelNumber(get('Taille Type', 'Taille Tribal'), DEFAULT_TYPE_STYLE.fontSize),

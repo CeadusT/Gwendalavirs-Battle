@@ -5,7 +5,7 @@
    l'interface (listes déroulantes, filtres, règles) est générée à partir d'ici.
    ========================================================================== */
 
-const APP_VERSION = '2.14';
+const APP_VERSION = '2.15';
 
 const TYPES = ['Dessin de base', 'Dessin avancé', 'Personnage', 'Objet', 'Dessin légendaire', 'Héros', 'Jeton', 'Dessin de base jeton'];
 const HERO_TYPE = 'Héros';
@@ -32,6 +32,26 @@ const COLORS = {
 };
 const COLOR_NAMES = Object.keys(COLORS);
 const FALLBACK_COLOR = 'Gris';
+
+/* Réaction : effet jouable pendant le tour adverse, selon la couleur de la carte.
+   La valeur se règle carte par carte (c.reaction, vide = pas de réaction).
+   sign : préfixe affiché devant la valeur · text(v) : effet en toutes lettres. */
+const REACTION_ICONS = {
+  attack: 'M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
+  burst: 'M12 3l1.8 5.2L19 7l-3 4.5L21 14l-5.4.6L16 20l-4-3.4L8 20l.4-5.4L3 14l5-2.5L5 7l5.2 1.2Z',
+  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
+  shield: 'M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z',
+  eye: 'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
+};
+const REACTIONS = {
+  Rouge: { icon: REACTION_ICONS.attack, sign: '+', text: v => `+${v} ATK` },
+  Vert: { icon: REACTION_ICONS.attack, sign: '−', text: v => `−${v} ATK` },
+  Jaune: { icon: REACTION_ICONS.burst, sign: '', text: v => `Inflige ${v} blessure${v > 1 ? 's' : ''}` },
+  Violet: { icon: REACTION_ICONS.eye, sign: '', text: v => `Regarde la première carte du deck adverse et applique son effet de réaction (${v})` },
+  Bleu: { icon: REACTION_ICONS.heart, sign: '+', text: v => `Soigne ${v}` },
+  Marron: { icon: REACTION_ICONS.shield, sign: '', text: v => `Protège ${v} blessure${v > 1 ? 's' : ''}` },
+};
+const MAX_REACTION = 9;
 
 /* Repère de rareté (losange sur la ligne de Type). */
 const RARITY_COLORS = { Commun: '#b9bec4', Rare: '#d8b25a', 'Légendaire': '#e07a3a' };
