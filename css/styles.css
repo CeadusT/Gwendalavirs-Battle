@@ -3693,6 +3693,26 @@ body.draggingCard * {
   cursor: not-allowed;
 }
 
+.restoreAllTrash {
+  border: 1px solid #3c5a43;
+  background: #142019;
+  color: #9fd6ab;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.restoreAllTrash:hover {
+  border-color: #5a8a64;
+  color: #d3f5da;
+}
+
+.restoreAllTrash:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
 
 /* ==========================================================================
    Fenêtres et notifications

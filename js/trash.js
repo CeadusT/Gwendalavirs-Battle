@@ -34,6 +34,30 @@ async function moveCardToTrash(c) {
   flash(`${c.name} placée dans la corbeille.`);
 }
 
+/* Toute la bibliothèque part dans la corbeille : rien n'est perdu, tout se restaure. */
+async function moveLibraryToTrash() {
+  const all = cards.slice();
+  if (!all.length) return;
+  const now = Date.now();
+  const ids = new Set(all.map(c => c.id));
+  trashCards = trashCards.filter(x => !ids.has(x.id));
+  for (const c of all) {
+    trashCards.push({ ...c, trashedAt: now, trashOrigin: isBaseId(c.id) ? 'base' : 'custom' });
+    forgetCard(c.id);
+  }
+  hero = null;
+  await trashChanged();
+  flash(`${all.length} carte${all.length > 1 ? 's' : ''} placée${all.length > 1 ? 's' : ''} dans la corbeille.`);
+}
+
+async function restoreAllFromTrash() {
+  const n = trashCards.length;
+  if (!n) return;
+  trashCards = [];
+  await trashChanged();
+  flash(`${n} carte${n > 1 ? 's' : ''} restaurée${n > 1 ? 's' : ''} dans la bibliothèque.`);
+}
+
 async function restoreFromTrash(id) {
   trashCards = trashCards.filter(c => c.id !== id);
   await trashChanged();
@@ -77,6 +101,8 @@ function renderTrash() {
   $('#trashBadge').textContent = count;
   $('#trashBadge').classList.toggle('hidden', count === 0);
   $('#emptyTrash').disabled = count === 0;
+  $('#restoreAllTrash').disabled = count === 0;
+  $('#trashLibrary').disabled = cards.length === 0;
   $('#trashList').innerHTML = count ? trashCards.slice().reverse().map(raw => {
     const c = normalizeCard(raw);
     const id = escapeHtml(c.id);
@@ -126,6 +152,10 @@ let pendingDelete = null;   // { id, mode: 'trash' | 'permanent' | 'all' }
 const DELETE_MODAL_TEXTS = {
   trash: c => ['Mettre cette carte à la corbeille ?', `${c.name} disparaîtra de la bibliothèque et sera retirée du deck, mais pourra être restaurée depuis la Corbeille.`, 'Mettre à la corbeille'],
   permanent: c => ['Supprimer définitivement cette carte ?', `${c.name} sera effacée définitivement. Cette action ne peut pas être annulée.`, 'Supprimer définitivement'],
+  library: () => {
+    const n = cards.length;
+    return ['Voulez-vous vraiment tout supprimer ?', `Les ${n} carte${n > 1 ? 's' : ''} de la bibliothèque seront placées dans la corbeille et retirées du deck. Tu pourras les restaurer avec « Tout restaurer ».`, 'Tout supprimer'];
+  },
   all: () => {
     const n = trashCards.length;
     const s = n > 1 ? 's' : '';
@@ -134,7 +164,7 @@ const DELETE_MODAL_TEXTS = {
 };
 
 function openDeleteCardModal(c, mode = 'trash') {
-  if (!c && mode !== 'all') return;
+  if (!c && mode !== 'all' && mode !== 'library') return;
   pendingDelete = { id: c?.id ?? null, mode };
   const [title, copy, confirmLabel] = DELETE_MODAL_TEXTS[mode](c);
   $('#deleteCardTitle').textContent = title;
@@ -151,6 +181,10 @@ function closeDeleteCardModal() {
 $('#emptyTrash').onclick = () => {
   if (trashCards.length) openDeleteCardModal(null, 'all');
 };
+$('#trashLibrary').onclick = () => {
+  if (cards.length) openDeleteCardModal(null, 'library');
+};
+$('#restoreAllTrash').onclick = restoreAllFromTrash;
 $('#deleteCardCancel').onclick = closeDeleteCardModal;
 closeOnBackdrop(deleteCardModal, closeDeleteCardModal);
 $('#deleteCardConfirm').onclick = () => {
@@ -158,6 +192,7 @@ $('#deleteCardConfirm').onclick = () => {
   const { id, mode } = pendingDelete;
   closeDeleteCardModal();
   if (mode === 'all') permanentlyDeleteAllTrash();
+  else if (mode === 'library') moveLibraryToTrash();
   else if (mode === 'trash') moveCardToTrash(cardsById.get(id));
   else permanentlyDeleteFromTrash(id);
 };
